@@ -18,12 +18,13 @@ export const validateSignup: ValidationChain[] = [
       .withMessage('비밀번호 필드는 필수값입니다.')
       .isLength({ min: 8 })
       .withMessage('비밀번호는 최소 8자 이상이어야 합니다.'),
-  ];
+];
   
-  export const handleValidationResult = (req: Request, res: Response, next: NextFunction): void => {
+export const handleValidationResult = (req: Request, res: Response, next: NextFunction): void => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const error = new AppError('Validation Error', 400);
+        const errorMessages = errors.array().map(error => error.msg);
+        const error = new AppError(`Validation Error: ${errorMessages.join(', ')}`, 400);
         return next(error);
     }
 

@@ -9,13 +9,13 @@ dotenv.config();
 
 const app: Express = express();
 
-//에러 핸들러 설정
 // 미들웨어 설정
 app.use(express.json());
 
 //user 라우터 연결
 app.use('/users', userRouter);
 
+//에러 핸들러 설정
 app.use(errorHandler)
 
 //데이터 베이스 및 서버 연결

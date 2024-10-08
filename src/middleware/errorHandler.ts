@@ -11,7 +11,7 @@ export const errorHandler = async (err: any, req: Request, res: Response, next: 
         });
     } else {
         // 일반 에러 처리
-        const statusCode = err.status || 500; // 기본값은 500
+        const statusCode = err.status || 500; // 서버 오류
         const message = err.message || '서버 오류가 발생했습니다.';
 
         res.status(statusCode).json({

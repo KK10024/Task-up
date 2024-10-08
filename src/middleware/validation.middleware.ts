@@ -1,26 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
-import { validate } from 'class-validator';
+import { body, validationResult, ValidationChain } from "express-validator";
+import { AppError } from '../util/AppError';
 
-// 제네릭을 사용하여 매개변수가 있는 생성자 지원
-export const validateDto = <T>(dtoClass: new () => T) => {
-    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        // DTO 인스턴스 생성, req.body의 값을 기반으로 할당
-        const dto = Object.assign(new dtoClass(), req.body);
+export const validateSignup: ValidationChain[] = [
+    body('name')
+      .notEmpty()
+      .withMessage('이름 필드는 필수값입니다.'),
+    
+    body('email')
+      .notEmpty()
+      .withMessage('이메일 필드는 필수값입니다.')
+      .isEmail()
+      .withMessage('유효한 이메일 주소를 입력하세요.'),
+    
+    body('password')
+      .notEmpty()
+      .withMessage('비밀번호 필드는 필수값입니다.')
+      .isLength({ min: 8 })
+      .withMessage('비밀번호는 최소 8자 이상이어야 합니다.'),
+  ];
+  
+  export const handleValidationResult = (req: Request, res: Response, next: NextFunction): void => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        const error = new AppError('Validation Error', 400);
+        return next(error);
+    }
 
-        // 유효성 검사
-        const errors = await validate(dto);
-        if (errors.length > 0) {
-             res.status(400).send({
-                success: false,
-                message: '입력값 에러',
-                errors: errors.map(error => ({
-                    property: error.property,
-                    constraints: error.constraints
-                }))
-            });
-        }
-
-        // 유효성 검사를 통과하면 다음 미들웨어로 진행
-        next();
-    };
+    next(); // 다음 미들웨어로 넘어가기
 };

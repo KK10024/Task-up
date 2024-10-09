@@ -10,7 +10,7 @@ export const AppDataSource = new DataSource({
     username: "root",
     password: "1234",
     database: "TaskUp",
-    synchronize: true, // 개발 환경에서는 true, 프로덕션에서는 false로 설정
+    synchronize: false, // 개발 환경에서는 true, 프로덕션에서는 false로 설정
     logging: false,
     entities: [User, Task],
     migrations: [],

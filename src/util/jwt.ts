@@ -12,10 +12,10 @@ if (!JWT_SECRET) {
 }
 
 interface TokenPayload {
-    id: number;
+    id: string;
 }
 
-export const generateToken = (userId: number): string => {
+export const generateToken = (userId: string): string => {
     return jwt.sign({ id: userId } as TokenPayload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 

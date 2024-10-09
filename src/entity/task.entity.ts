@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
 export class Task {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn()    
     id: number;
 
     @Column({ nullable: false })
@@ -12,9 +12,15 @@ export class Task {
     @Column({ nullable: false })
     sub_title: string;
 
-    @Column({ nullable: false })
+    @Column('longtext')    
     content: string;
 
+    @CreateDateColumn()
+    createdAt: Date;
+    
+    @UpdateDateColumn()
+    updatedAt: Date;
+    
     @ManyToOne(() => User, (user) => user.tasks)
-    user: User; 
+    user: User;
 }

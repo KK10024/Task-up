@@ -3,6 +3,7 @@ import { AppDataSource } from './config/db'; // 경로를 맞게 조정
 import dotenv from 'dotenv';
 import { userRouter } from './user/user.router'; 
 import { errorHandler } from './middleware/errorHandler'; // 에러 처리 미들웨어 가져오기
+import { taskRouter } from "./task/task.router";
 
 //.env 파일 불러오기
 dotenv.config();
@@ -14,6 +15,7 @@ app.use(express.json());
 
 //user 라우터 연결
 app.use('/users', userRouter);
+app.use('/tasks', taskRouter);
 
 //에러 핸들러 설정
 app.use(errorHandler)

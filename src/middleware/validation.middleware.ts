@@ -1,32 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
-import { body, validationResult, ValidationChain } from "express-validator";
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { AppError } from '../util/AppError';
 
-export const validateSignup: ValidationChain[] = [
-    body('name')
-      .notEmpty()
-      .withMessage('이름 필드는 필수값입니다.'),
-    
-    body('email')
-      .notEmpty()
-      .withMessage('이메일 필드는 필수값입니다.')
-      .isEmail()
-      .withMessage('유효한 이메일 주소를 입력하세요.'),
-    
-    body('password')
-      .notEmpty()
-      .withMessage('비밀번호 필드는 필수값입니다.')
-      .isLength({ min: 8 })
-      .withMessage('비밀번호는 최소 8자 이상이어야 합니다.'),
-];
-  
-export const handleValidationResult = (req: Request, res: Response, next: NextFunction): void => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(error => error.msg);
-        const error = new AppError(`Validation Error: ${errorMessages.join(', ')}`, 400);
-        return next(error);
-    }
+export const validateDto = (dtoClass: any) => {
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const dtoObject = plainToInstance(dtoClass, req.body);
+        const errors = await validate(dtoObject);
 
-    next(); // 다음 미들웨어로 넘어가기
+        if (errors.length > 0) {
+            const errorMessages = errors.map(error => Object.values(error.constraints)).flat();
+            const error = new AppError(`Validation Error: ${errorMessages.join(', ')}`, 400);
+            return next(error);
+          }
+        next(); // 유효성 검사 통과 시 다음 미들웨어로 이동
+    };
 };

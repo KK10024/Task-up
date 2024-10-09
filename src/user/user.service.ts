@@ -26,7 +26,7 @@ export const userService = {
           });
         await userRepository.save(newUser);
 
-        return newUser;
+        return ;
     },
     signIn: async (loginDto: LoginUserDto) => {
         const { email, password } = loginDto;
@@ -44,14 +44,9 @@ export const userService = {
         if (!isPasswordValid) throw new AppError('잘못된 비밀번호입니다.', 400);
 
         // JWT 생성
-        const token = generateToken(user.id);
+        const token = generateToken(user.uuid);
 
         // 로그인 성공 시 사용자 정보와 토큰 반환
-        return {
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-            },token};
+        return {token};
     },
 };

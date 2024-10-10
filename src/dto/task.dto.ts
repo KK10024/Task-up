@@ -55,8 +55,10 @@ export class TaskResponseDTO {
         this.content = task.content;
         this.status = task.status;
         this.members = task.members;
-        this.startDate = task.startDate;
-        this.endDate = task.endDate;
+        this.startDate = new Date(task.startDate);
+        this.startDate.setHours(this.startDate.getHours() + 9); // KST로 조정
+        this.endDate = new Date(task.endDate);
+        this.endDate.setHours(this.endDate.getHours() + 9); // KST로 조정
         this.user = {
             name: task.user.name,
         };

@@ -3,7 +3,7 @@ import { Task } from '../entity/task.entity';
 
 export const taskRepository = {
     // 새로운 Task 엔티티 생성 후 저장
-    createTask: async (newTask ) => {
+    createTask: async (newTask) => {
         const repository = AppDataSource.getRepository(Task);
         const task = repository.create(newTask); // 여기서 create() 호출
         return await repository.save(task);

@@ -12,6 +12,16 @@ export class TaskDTO {
 }
 
 export class createTaskDTO extends TaskDTO { }
+export interface ITask {
+    title: string;
+    sub_title: string;
+    content: string;
+    status: TaskStatus; 
+    members: string[];
+    startDate: Date;
+    endDate: Date;
+    user: { uuid: string };
+}
 
 export type TaskUpdateData = Partial<Pick<TaskDTO, 'title' | 'sub_title' | 'content' | 'status' | 'members' | 'startDate' | 'endDate'>>;
 

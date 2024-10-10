@@ -1,5 +1,5 @@
 import { taskRepository } from '../repository/task.repository';
-import { createTaskDTO, taskUpdateDTO , TaskResponseDTO} from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask} from '../dto/task.dto';
 import { AppError } from '../util/AppError';
 import { getUserByName, userRepository } from '../repository/user.repository';
 import { TaskStatus } from '../entity/task.status';
@@ -15,10 +15,7 @@ export const taskService = {
         // 이름으로 사용자 검색
         const member = await Promise.all(members.map(getUserByName));
         
-        const user = await userRepository.findOne({ where: { uuid: user_id } });
-        if (!user) throw new AppError('사용자를 찾을 수 없습니다.', 404);
-
-        const newTask = {
+        const newTask: ITask= {
             title,
             sub_title,
             content,
@@ -26,7 +23,7 @@ export const taskService = {
             members: member,
             startDate,
             endDate,
-            author: user,
+            user : {uuid: user_id} 
         };
         const result = await taskRepository.createTask(newTask)
         return new TaskResponseDTO(result);
@@ -48,7 +45,8 @@ export const taskService = {
         return new TaskResponseDTO(task);
     },
 
-    readTasksByStatus: async (status: TaskStatus) => {
+    readTasksByStatus: async (status: number) => {
+        console.log(status);
         const tasks = await taskRepository.findTasksByStatus(status);
         if (!tasks.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
         const result = tasks.map(task => new TaskResponseDTO(task))

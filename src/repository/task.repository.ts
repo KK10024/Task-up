@@ -1,9 +1,12 @@
+import { ITask } from '../dto/task.dto';
 import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
+import { TaskStatus } from '../entity/task.status'; // enum import
+import { AppError } from '../util/AppError';
 
 export const taskRepository = {
     // 새로운 Task 엔티티 생성 후 저장
-    createTask: async (newTask) => {
+    createTask: async (newTask: ITask) => {
         const repository = AppDataSource.getRepository(Task);
         const task = repository.create(newTask); // 여기서 create() 호출
         return await repository.save(task);
@@ -29,6 +32,9 @@ export const taskRepository = {
 
     findTasksByStatus: async (status: number) => {
         const repository = AppDataSource.getRepository(Task);
+        if (!Object.values(TaskStatus).includes(status)) {
+            throw new AppError('유효하지 않은 상태 값입니다.', 400);
+        }
         return await repository.find({
             where: { status },
             relations: ['user'],

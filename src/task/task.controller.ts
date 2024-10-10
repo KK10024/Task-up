@@ -16,9 +16,20 @@ export const taskController = {
     },
     readTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {page , pageSize} = req.query;
-            const result = await taskService.readTask(Number(page) , Number(pageSize));
-            res.status(200).send({message:"조회 완료", data: result});
+            // 쿼리에서 페이지와 페이지 크기 가져오기
+            const page = Number(req.query.page);
+            const pageSize = Number(req.query.pageSize);
+    
+            // 페이지와 페이지 크기 유효성 검사
+            if (isNaN(page) || page < 1) {
+                throw new AppError('유효하지 않은 페이지 번호입니다.', 400)
+            }
+            if (isNaN(pageSize) || pageSize < 1) {
+               throw new AppError('유효하지 않은 페이지 크기입니다.', 400)
+            }
+    
+            const result = await taskService.readTask(page, pageSize);
+            res.status(200).send({ message: "조회 완료", data: result });
         } catch (e) {
             next(e);
         }
@@ -35,12 +46,11 @@ export const taskController = {
     },
     readTasksByStatus: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const status = req.query.status as string;
-            if (!status || isNaN(Number(status))) {
+            const status = parseInt(req.query.status as string);
+            if (isNaN(status)) {
                 throw new AppError('유효하지 않은 status 값입니다. 숫자를 입력해주세요.', 400);
-            }        
-            const numericStatus = Number(status);
-            const result = await taskService.readTasksByStatus(numericStatus);            
+            }
+            const result = await taskService.readTasksByStatus(status);            
             res.status(200).send({ message: "상태 조회", data: result });
         } catch (e) {
             next(e);

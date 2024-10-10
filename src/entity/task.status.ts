@@ -1,4 +1,5 @@
 export enum TaskStatus {
-    IN_PROGRESS = 1, // 진행중
-    COMPLETED = 0,   // 완료
+    COMPLETED = 1,   // 완료
+    IN_PROGRESS = 2, // 진행중
+    DONE = 3, 
 }

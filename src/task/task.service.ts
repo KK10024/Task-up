@@ -14,7 +14,6 @@ export const taskService = {
 
         // 이름으로 사용자 검색
         const member = await Promise.all(members.map(getUserByName));
-        if (!member) throw new AppError('멤버를 찾을 수 없습니다.', 404);
         
         const user = await userRepository.findOne({ where: { uuid: user_id } });
         if (!user) throw new AppError('사용자를 찾을 수 없습니다.', 404);
@@ -27,10 +26,10 @@ export const taskService = {
             members: member,
             startDate,
             endDate,
-            user: { name : user.name },
+            author: user,
         };
-
-        return await taskRepository.createTask(newTask);
+        const result = await taskRepository.createTask(newTask)
+        return new TaskResponseDTO(result);
     },
 
     readTask: async (page: number, pageSize: number) => {
@@ -52,15 +51,23 @@ export const taskService = {
     readTasksByStatus: async (status: TaskStatus) => {
         const tasks = await taskRepository.findTasksByStatus(status);
         if (!tasks.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
-        return tasks.map(task => new TaskResponseDTO(task));
+        const result = tasks.map(task => new TaskResponseDTO(task))
+        return result;
     },
 
     updateTask: async(task_id: number, taskupdateDTO: taskUpdateDTO) => {
         const task = await taskRepository.findTaskById(task_id);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
 
+        if (taskupdateDTO.members) {
+            const members = await Promise.all(taskupdateDTO.members.map(getUserByName));
+            if (!members.every(member => member)) throw new AppError('멤버를 찾을 수 없습니다.', 404);
+            task.members = members; // 업데이트할 멤버로 설정
+        }
+
         Object.assign(task, taskupdateDTO);
-        return new TaskResponseDTO(await taskRepository.updateTask(task));
+        const result = await taskRepository.updateTask(task);
+        return new TaskResponseDTO(result);
     },
 
     deleteTask: async(task_id: number) => {

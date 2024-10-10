@@ -3,6 +3,7 @@ import { AppDataSource } from '../config/db';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO} from '../dto/task.dto';
 import { Task } from '../entity/task.entity';
 import { AppError } from '../util/AppError';
+import { Request } from 'express';
 
 
 export const taskService  = {
@@ -30,13 +31,26 @@ export const taskService  = {
 
         return result;
     },
-    readTask: async() => {
+    readTask: async (req: Request) => {
         const taskRepository = AppDataSource.getRepository(Task);
-        const task = await taskRepository.find({
+        
+        // 쿼리에서 페이지와 페이지 크기 가져오기
+        const page = parseInt(req.query.page as string) || 1; // 기본값은 1페이지
+        const pageSize = parseInt(req.query.pageSize as string) || 10; // 기본값은 10개 항목
+
+        const [tasks, total] = await taskRepository.findAndCount({
             relations: ['user'],
-        }); 
-        const result = task.map(task => new TaskResponseDTO(task))
-        return result;
+            skip: (page - 1) * pageSize, // 페이지에 따라 건너뛸 항목 수
+            take: pageSize, // 가져올 항목 수
+        });
+
+        const result = tasks.map(task => new TaskResponseDTO(task));
+        return {
+            total, // 총 작업 수
+            page, // 현재 페이지
+            pageSize, // 페이지 크기
+            data: result, // 작업 데이터
+        };
     },
     readOneTask: async(task_id: number) => {
         const taskRepository = AppDataSource.getRepository(Task);

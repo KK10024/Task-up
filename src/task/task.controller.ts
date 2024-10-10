@@ -16,7 +16,7 @@ export const taskController = {
     },
     readTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await taskService.readTask();
+            const result = await taskService.readTask(req);
             res.status(200).send({message:"조회 완료", data: result});
         } catch (e) {
             next(e);
@@ -43,6 +43,13 @@ export const taskController = {
             res.status(200).send({ message: "상태 조회", data: result });
         } catch (e) {
             next(e);
+        }
+    },
+    calenderTask: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            
+        } catch (e) {
+            
         }
     },
     updateTask: async (req: Request, res: Response, next: NextFunction) => {

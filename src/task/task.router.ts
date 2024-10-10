@@ -4,8 +4,7 @@ import { authenticateToken } from '../middleware/auth.token';
 const router = Router();
 
 // 프로젝트 생성
-// router.post('/', authenticateToken, taskController.createTask); 
-router.post('/', taskController.createTask); 
+router.post('/', authenticateToken, taskController.createTask);
 // 전체 프로젝트 조회
 router.get('/', taskController.readTask);
 // 프로젝트 상태 조회 (진행중, 완료)

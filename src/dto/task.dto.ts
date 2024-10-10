@@ -5,7 +5,7 @@ export class TaskDTO {
     sub_title: string;
     content: string;
     status: TaskStatus;
-    members: number[];
+    members: string[];
     startDate: Date;
     endDate: Date;
     user_id: string;
@@ -20,7 +20,7 @@ export class taskUpdateDTO {
     sub_title?: string;
     content?: string;
     status?: TaskStatus;
-    members?: number[];
+    members?: string[];
     startDate?: Date;
     endDate?: Date;
 

@@ -20,7 +20,7 @@ export class Task {
     status: TaskStatus;
 
     @Column({type: 'json'})
-    members: number[];
+    members: string[];
 
     @Column({type:'datetime', name:'start_date'})
     startDate: Date;

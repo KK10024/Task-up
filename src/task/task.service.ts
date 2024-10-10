@@ -4,6 +4,7 @@ import { createTaskDTO, taskUpdateDTO , TaskResponseDTO} from '../dto/task.dto';
 import { Task } from '../entity/task.entity';
 import { AppError } from '../util/AppError';
 import { Request } from 'express';
+import { getUserUUIDByName } from '../entity/user.repository';
 
 
 export const taskService  = {
@@ -17,12 +18,22 @@ export const taskService  = {
         
         const taskRepository = AppDataSource.getRepository(Task);
 
+        // 입력된 사용자 이름으로 검색
+        const memberUUIDs = await Promise.all(
+            members.map(async (memberName) => {
+                const uuid = await getUserUUIDByName(memberName);
+                if (uuid) {
+                    return uuid;
+                }
+                throw new AppError(`사용자를 찾을 수 없습니다: ${memberName}`, 404);
+            })
+        );
         const newTask = taskRepository.create({
             title,
             sub_title,
             content,
             status,
-            members,
+            members: memberUUIDs,
             startDate,
             endDate,
             user: {uuid: user_id}

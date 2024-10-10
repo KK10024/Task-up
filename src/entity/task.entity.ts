@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn} from 'typeorm';
+import { TaskStatus } from './task.status';
 import { User } from './user.entity';
 
 @Entity()
@@ -15,8 +16,8 @@ export class Task {
     @Column('longtext')    
     content: string;
 
-    @Column({type:'boolean'})
-    status:boolean;
+    @Column({type: 'enum', enum: TaskStatus, default: TaskStatus.IN_PROGRESS})
+    status: TaskStatus;
 
     @Column({type: 'json'})
     members: number[];
@@ -33,7 +34,7 @@ export class Task {
     @UpdateDateColumn({type:'datetime', name:"updated_at"})
     updatedAt: Date;
 
-    @DeleteDateColumn({ type: 'datetime', name: 'deleted_at', nullable: true }) // 소프트 삭제를 위한 삭제 날짜 컬럼
+    @DeleteDateColumn({ type: 'datetime', name: 'deleted_at', nullable: true }) // 삭제를 위한 삭제 날짜 저장 컬럼
     deletedAt: Date | null;
 
     @ManyToOne(() => User, (user) => user.tasks)

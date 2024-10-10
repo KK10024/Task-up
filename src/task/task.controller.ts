@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
 import { createTaskDTO, taskUpdateDTO } from '../dto/task.dto';
+import { AppError } from '../util/AppError';
+import { TaskStatus } from '../entity/task.status';
 
 export const taskController = {
     createTask: async (req: Request, res: Response, next: NextFunction) => {
@@ -23,8 +25,22 @@ export const taskController = {
     readOneTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {task_id} = req.params;
+            
             const result = await taskService.readOneTask(Number(task_id));
             res.status(200).send({message:"조회 완료", data: result});
+        } catch (e) {
+            next(e);
+        }
+    },
+    readTasksByStatus: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const status = req.query.status as string;
+            if (!status || isNaN(Number(status))) {
+                throw new AppError('유효하지 않은 status 값입니다. 숫자를 입력해주세요.', 400);
+            }        
+            const numericStatus = Number(status);
+            const result = await taskService.readTasksByStatus(numericStatus);            
+            res.status(200).send({ message: "상태 조회", data: result });
         } catch (e) {
             next(e);
         }

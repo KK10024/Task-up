@@ -1,3 +1,4 @@
+import { TaskStatus } from 'src/entity/task.status';
 import { AppDataSource } from '../config/db';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO} from '../dto/task.dto';
 import { Task } from '../entity/task.entity';
@@ -50,6 +51,18 @@ export const taskService  = {
         const result = new TaskResponseDTO(task);
         return result;
     },
+    readTasksByStatus: async (status: TaskStatus) => {
+        const taskRepository = AppDataSource.getRepository(Task);
+        const task = await taskRepository.find({
+            where: {
+                status,
+            },
+            relations: ['user'], 
+        });
+        if (!task.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
+        
+        return task.map(task => new TaskResponseDTO(task));
+    },
     updateTask: async(task_id: number, taskupdateDTO: taskUpdateDTO) => {
         const taskRepository = AppDataSource.getRepository(Task);
         const task = await taskRepository.findOne({
@@ -61,6 +74,7 @@ export const taskService  = {
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
 
         Object.assign(task, taskupdateDTO);
+
         await taskRepository.save(task);
 
         return new TaskResponseDTO(task);;

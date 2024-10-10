@@ -1,27 +1,30 @@
-export class TaskDTO  {
+import { TaskStatus } from '../entity/task.status';
+
+export class TaskDTO {
     title: string;
     sub_title: string;
     content: string;
-    status: boolean;
+    status: TaskStatus;
     members: number[];
     startDate: Date;
     endDate: Date;
     user_id: string;
 }
-export class createTaskDTO extends TaskDTO {
 
-}
+export class createTaskDTO extends TaskDTO { }
+
+export type TaskUpdateData = Partial<Pick<TaskDTO, 'title' | 'sub_title' | 'content' | 'status' | 'members' | 'startDate' | 'endDate'>>;
 
 export class taskUpdateDTO {
     title?: string;
     sub_title?: string;
     content?: string;
-    status?: boolean;
+    status?: TaskStatus;
     members?: number[];
     startDate?: Date;
     endDate?: Date;
 
-    constructor(data: any) {
+    constructor(data: TaskUpdateData) {
         this.title = data.title;
         this.sub_title = data.sub_title;
         this.content = data.content;
@@ -33,16 +36,16 @@ export class taskUpdateDTO {
 }
 
 export class TaskResponseDTO {
-    id: number;                
-    title: string;             
-    sub_title: string;         
-    content: string;          
-    status: boolean;           
-    members: number[];         
-    startDate: Date;          
-    endDate: Date;           
-    user: {                    
-        username: string;     
+    id: number;
+    title: string;
+    sub_title: string;
+    content: string;
+    status: TaskStatus;
+    members: number[];
+    startDate: Date;
+    endDate: Date;
+    user: {
+        username: string;
     };
 
     constructor(task: any) {

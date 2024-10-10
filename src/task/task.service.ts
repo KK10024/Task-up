@@ -1,11 +1,11 @@
 import { AppDataSource } from '../config/db';
-import { taskCreateDTO, taskUpdateDTO } from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO , TaskResponseDTO} from '../dto/task.dto';
 import { Task } from '../entity/task.entity';
 import { AppError } from '../util/AppError';
 
 
 export const taskService  = {
-    createTask: async(taskcreateDTO: taskCreateDTO) => {
+    createTask: async(taskcreateDTO: createTaskDTO) => {
         const {title, sub_title, content, status, members, startDate, endDate, user_id} = taskcreateDTO;
 
         // 입력값 체크 
@@ -34,19 +34,8 @@ export const taskService  = {
         const task = await taskRepository.find({
             relations: ['user'],
         }); 
-        return task.map(task => ({ 
-            id: task.id, 
-            title: task.title, 
-            sub_title: task.sub_title, 
-            content: task.content,
-            status: task.status,
-            members: task.members,
-            startDate: task.startDate,
-            endDate: task.endDate,
-            user: {
-                username:task.user.name
-            }
-        }));
+        const result = task.map(task => new TaskResponseDTO(task))
+        return result;
     },
     readOneTask: async(task_id: number) => {
         const taskRepository = AppDataSource.getRepository(Task);
@@ -55,10 +44,11 @@ export const taskService  = {
             where: {
                 id: task_id, 
             },
+            relations: ['user'],
         });
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
-    
-        return task
+        const result = new TaskResponseDTO(task);
+        return result;
     },
     updateTask: async(task_id: number, taskupdateDTO: taskUpdateDTO) => {
         const taskRepository = AppDataSource.getRepository(Task);
@@ -72,7 +62,7 @@ export const taskService  = {
         Object.assign(task, taskupdateDTO);
         await taskRepository.save(task);
 
-        return task;
+        return new TaskResponseDTO(task);;
     },
     deleteTask: async(task_id: number) => {
         const taskRepository = AppDataSource.getRepository(Task);

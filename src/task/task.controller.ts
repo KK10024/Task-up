@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
-import { taskCreateDTO, taskUpdateDTO } from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO } from '../dto/task.dto';
 
 export const taskController = {
     createTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const takscreateDTO: taskCreateDTO = req.body;
+            const takscreateDTO: createTaskDTO = req.body;
             const result = await taskService.createTask(takscreateDTO);
             res.status(201).send({message:"생성 완료", data: result});
         } catch (e) {

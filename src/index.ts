@@ -1,4 +1,5 @@
 import express, { Express} from "express";
+import cookieParser from 'cookie-parser';
 import { AppDataSource } from './config/db'; // 경로를 맞게 조정
 import dotenv from 'dotenv';
 import { userRouter } from './user/user.router'; 
@@ -9,6 +10,9 @@ import { taskRouter } from "./task/task.router";
 dotenv.config();
 
 const app: Express = express();
+
+// 쿠키 파싱
+app.use(cookieParser());
 
 // 미들웨어 설정
 app.use(express.json());

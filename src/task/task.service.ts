@@ -6,7 +6,7 @@ import { AppError } from '../util/AppError';
 
 export const taskService  = {
     createTask: async(taskcreateDTO: taskCreateDTO) => {
-        const {title, sub_title, content, user_id} = taskcreateDTO;
+        const {title, sub_title, content, status, members, startDate, endDate, user_id} = taskcreateDTO;
 
         // 입력값 체크 
         if(!title || !sub_title  || !content) throw new AppError('필수 입력값입니다.', 400);
@@ -19,6 +19,10 @@ export const taskService  = {
             title,
             sub_title,
             content,
+            status,
+            members,
+            startDate,
+            endDate,
             user: {uuid: user_id}
           });
         const result = await taskRepository.save(newTask);
@@ -35,8 +39,11 @@ export const taskService  = {
             title: task.title, 
             sub_title: task.sub_title, 
             content: task.content,
+            status: task.status,
+            members: task.members,
+            startDate: task.startDate,
+            endDate: task.endDate,
             user: {
-                user_id:task.user.uuid,
                 username:task.user.name
             }
         }));

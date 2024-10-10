@@ -6,19 +6,31 @@ export class Task {
     @PrimaryGeneratedColumn()    
     id: number;
 
-    @Column({ nullable: false })
+    @Column({type:'varchar',length:'50', nullable: false })
     title: string;
 
-    @Column({ nullable: false })
+    @Column({type:'varchar',length:'50', nullable: false })
     sub_title: string;
 
     @Column('longtext')    
     content: string;
 
-    @CreateDateColumn()
+    @Column({type:'boolean'})
+    status:boolean;
+
+    @Column({type: 'json'})
+    members: number[];
+
+    @Column({type:'datetime', name:'start_date'})
+    startDate: Date;
+
+    @Column({type:'datetime', name:'end_date'})
+    endDate: Date;
+
+    @CreateDateColumn({type:'datetime', name:"created_at"})
     createdAt: Date;
     
-    @UpdateDateColumn()
+    @UpdateDateColumn({type:'datetime', name:"updated_at"})
     updatedAt: Date;
     
     @ManyToOne(() => User, (user) => user.tasks)

@@ -41,11 +41,11 @@ export class TaskResponseDTO {
     sub_title: string;
     content: string;
     status: TaskStatus;
-    members: number[];
+    members: string[];
     startDate: Date;
     endDate: Date;
     user: {
-        username: string;
+        name: string;
     };
 
     constructor(task: any) {
@@ -58,7 +58,7 @@ export class TaskResponseDTO {
         this.startDate = task.startDate;
         this.endDate = task.endDate;
         this.user = {
-            username: task.user.name,
+            name: task.user.name,
         };
     }
 }

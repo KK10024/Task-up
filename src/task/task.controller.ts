@@ -16,7 +16,8 @@ export const taskController = {
     },
     readTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await taskService.readTask(req);
+            const {page , pageSize} = req.query;
+            const result = await taskService.readTask(Number(page) , Number(pageSize));
             res.status(200).send({message:"조회 완료", data: result});
         } catch (e) {
             next(e);

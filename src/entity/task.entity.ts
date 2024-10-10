@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -32,7 +32,10 @@ export class Task {
     
     @UpdateDateColumn({type:'datetime', name:"updated_at"})
     updatedAt: Date;
-    
+
+    @DeleteDateColumn({ type: 'datetime', name: 'deleted_at', nullable: true }) // 소프트 삭제를 위한 삭제 날짜 컬럼
+    deletedAt: Date | null;
+
     @ManyToOne(() => User, (user) => user.tasks)
     user: User;
 }

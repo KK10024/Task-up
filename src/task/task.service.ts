@@ -56,6 +56,7 @@ export const taskService  = {
             where:{
                 id: task_id
             },
+            relations: ['user'],
         });
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
 

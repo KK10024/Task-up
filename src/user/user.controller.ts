@@ -1,6 +1,7 @@
 import { userService } from "./user.service";
-import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
 import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest } from '../middleware/auth.token';
 
 
 export const userController = {
@@ -25,6 +26,16 @@ export const userController = {
                 maxAge: 60 * 60 * 1000,  // 1시간 동안 유효
             });
             res.status(200).send({message:'로그인 성공'});
+        } catch (e) {
+            next(e);
+        }
+    },
+    updateUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.user.id;
+            const updateUserDto: UpdateUserDto = req.body;
+            const result = await userService.updateUser(userId, updateUserDto);
+            res.status(200).send({message:"수정 완료"});
         } catch (e) {
             next(e);
         }

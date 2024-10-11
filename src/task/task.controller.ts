@@ -2,11 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
 import { createTaskDTO, taskUpdateDTO } from '../dto/task.dto';
 import { AppError } from '../util/AppError';
+import { AuthenticatedRequest } from '../middleware/auth.token'; // req.user 타입 정의를 가져옴
 
 export const taskController = {
-    createTask: async (req: Request, res: Response, next: NextFunction) => {
+    createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
+            const userId = req.user.id;
             const takscreateDTO: createTaskDTO = req.body;
+            takscreateDTO.user_id = userId; 
             const result = await taskService.createTask(takscreateDTO);
             res.status(201).send({message:"생성 완료", data: result});
         } catch (e) {

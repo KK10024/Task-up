@@ -1,7 +1,7 @@
 import { taskRepository } from '../repository/task.repository';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO} from '../dto/task.dto';
 import { AppError } from '../util/AppError';
-import { getUserByName } from '../repository/user.repository';
+import { userRepository } from '../repository/user.repository';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
@@ -12,7 +12,7 @@ export const taskService = {
         if (!user_id) throw new AppError('작성자는 필수입니다.', 400);
 
         // 이름으로 사용자 검색
-        const member = await Promise.all(members.map(getUserByName));
+        const member = await Promise.all(members.map(userRepository.getUserByName));
         
         const newTask: ITask= {
             title,
@@ -64,7 +64,7 @@ export const taskService = {
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
 
         if (taskupdateDTO.members) {
-            const members = await Promise.all(taskupdateDTO.members.map(getUserByName));
+            const members = await Promise.all(taskupdateDTO.members.map(userRepository.getUserByName));
             if (!members.every(member => member)) throw new AppError('멤버를 찾을 수 없습니다.', 404);
             task.members = members; // 업데이트할 멤버로 설정
         }

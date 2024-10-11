@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
-import { CreateUserDto, LoginUserDto } from '../dto/user.dto';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
 import { AppError } from '../util/AppError';
 import { generateToken } from '../util/jwt';
-import { createUser, findUserByEmail } from '../repository/user.repository';
+import { userRepository } from '../repository/user.repository';
 
 export const userService = {
     signUp: async (createUserDto: CreateUserDto) => {
@@ -16,13 +16,13 @@ export const userService = {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // 이메일 중복 체크
-        const existingUser = await findUserByEmail(email);
+        const existingUser = await userRepository.findUserByEmail(email);
         if (existingUser) {
             throw new AppError('이미 사용 중인 이메일입니다.', 409);
         }
 
         // 사용자 생성
-        await createUser({
+        await userRepository.createUser({
             name,
             email,
             password: hashedPassword,
@@ -39,7 +39,7 @@ export const userService = {
         }
 
         // 사용자 찾기
-        const user = await findUserByEmail(email);
+        const user = await userRepository.findUserByEmail(email);
         if (!user) {
             throw new AppError('사용자를 찾을 수 없습니다', 400);
         }
@@ -54,5 +54,11 @@ export const userService = {
         const token = generateToken(user.uuid);
 
         return { token };
+    },
+    updateUser: async(userId: string, updateUserdto: UpdateUserDto) => {
+        const user = await userRepository.findByUser(userId);
+        if(!user) throw new AppError("사용자를 찾을 수 없습니다.", 404);
+        Object.assign(user, updateUserdto);
+        await userRepository.updateUser(user);
     },
 };

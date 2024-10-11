@@ -5,13 +5,13 @@ export class User {
     @PrimaryGeneratedColumn('uuid')
     uuid: string;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false , length: "10"})
     name: string;
 
-    @Column({ nullable: false , unique: true})
+    @Column({ nullable: false , length: "50", unique: true})
     email: string;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false , length: "30"})
     password: string;
 
     @CreateDateColumn({type:'datetime', name:"created_at"})

@@ -39,5 +39,14 @@ export const userController = {
         } catch (e) {
             next(e);
         }
+    },
+    deleteUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.user.id;
+            await userService.deleteUser(userId);
+            res.status(200).send({massage:"탈퇴 완료"})
+        } catch (e) {
+            next(e);
+        }
     }
 }

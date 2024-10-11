@@ -61,4 +61,8 @@ export const userService = {
         Object.assign(user, updateUserdto);
         await userRepository.updateUser(user);
     },
+    deleteUser: async(userId: string) => {
+        const user = await userRepository.deleteUser(userId);
+        if (user.affected === 0) throw new AppError('사용자를 찾을 수 없습니다.', 404);
+    },
 };

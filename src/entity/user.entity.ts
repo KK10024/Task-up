@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { Task } from './task.entity';
 @Entity()
 export class User {
@@ -13,7 +13,16 @@ export class User {
 
     @Column({ nullable: false })
     password: string;
+
+    @CreateDateColumn({type:'datetime', name:"created_at"})
+    createdAt: Date;
     
+    @UpdateDateColumn({type:'datetime', name:"updated_at"})
+    updatedAt: Date;
+
+    @DeleteDateColumn({ type: 'datetime', name: 'deleted_at', nullable: true })
+    deletedAt: Date | null;
+
     @OneToMany(() => Task, (task) => task.user)
     tasks: Task[];
 }

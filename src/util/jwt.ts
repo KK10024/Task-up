@@ -23,6 +23,10 @@ export const verifyToken = (token: string): JwtPayload | null => {
     try {
         return jwt.verify(token, JWT_SECRET) as JwtPayload;
     } catch (e) {
+        // 에러 타입에 따라 다른 메시지를 반환
+        if (e instanceof jwt.TokenExpiredError) {
+            throw new AppError('토큰이 만료되었습니다.', 401);
+        }
         if (e instanceof jwt.JsonWebTokenError) {
             throw new AppError('유효하지 않은 토큰입니다.', 403);
         }

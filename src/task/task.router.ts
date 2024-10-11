@@ -12,10 +12,10 @@ router.get('/task-status', taskController.readTasksByStatus);
 //캘린더 일정 조회
 router.get('/calender', taskController.calenderTask);
 // 단건 프로젝트 조회
-router.get('/:task_id', taskController.readOneTask); 
+router.get('/:taskId', taskController.readOneTask); 
 // 프로젝트 수정
-router.patch('/:task_id', taskController.updateTask); 
+router.patch('/:taskId', taskController.updateTask); 
  // 프로젝트 삭제
-router.delete('/:task_id', taskController.deleteTask);
+router.delete('/:taskId', taskController.deleteTask);
 
 export const taskRouter = router;

@@ -38,8 +38,8 @@ export const taskService = {
         };
     },
 
-    readOneTask: async(task_id: number) => {
-        const task = await taskRepository.findTaskById(task_id);
+    readOneTask: async(taskId: number) => {
+        const task = await taskRepository.findTaskById(taskId);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
         return new TaskResponseDTO(task);
     },
@@ -59,8 +59,8 @@ export const taskService = {
         const result = calender.map(calender => new CalenderResDTO(calender))
         return result;
     },
-    updateTask: async(task_id: number, taskupdateDTO: taskUpdateDTO) => {
-        const task = await taskRepository.findTaskById(task_id);
+    updateTask: async(taskId: number, taskupdateDTO: taskUpdateDTO) => {
+        const task = await taskRepository.findTaskById(taskId);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
 
         if (taskupdateDTO.members) {
@@ -74,8 +74,8 @@ export const taskService = {
         return new TaskResponseDTO(result);
     },
 
-    deleteTask: async(task_id: number) => {
-        const task = await taskRepository.softDeleteTask(task_id);
+    deleteTask: async(taskId: number) => {
+        const task = await taskRepository.softDeleteTask(taskId);
         if (task.affected === 0) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);
     }
 };

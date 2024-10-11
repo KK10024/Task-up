@@ -22,10 +22,10 @@ export const taskRepository = {
         return { tasks, total };
     },
 
-    findTaskById: async (task_id: number) => {
+    findTaskById: async (taskId: number) => {
         const repository = AppDataSource.getRepository(Task);
         return await repository.findOne({
-            where: { id: task_id },
+            where: { id: taskId },
             relations: ['user'],
         });
     },
@@ -66,8 +66,8 @@ export const taskRepository = {
         return await repository.save(task);
     },
 
-    softDeleteTask: async (task_id: number) => {
+    softDeleteTask: async (taskId: number) => {
         const repository = AppDataSource.getRepository(Task);
-        return await repository.softDelete(task_id);
+        return await repository.softDelete(taskId);
     },
 };

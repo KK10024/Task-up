@@ -34,9 +34,9 @@ export const taskController = {
     },
     readOneTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {task_id} = req.params;
+            const {taskId} = req.params;
             
-            const result = await taskService.readOneTask(Number(task_id));
+            const result = await taskService.readOneTask(Number(taskId));
             res.status(200).send({message:"조회 완료", data: result});
         } catch (e) {
             next(e);
@@ -73,9 +73,9 @@ export const taskController = {
     },
     updateTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {task_id} = req.params;
+            const {taskId} = req.params;
             const taskupdateDTO: taskUpdateDTO = req.body;
-            const result = await taskService.updateTask(Number(task_id), taskupdateDTO);
+            const result = await taskService.updateTask(Number(taskId), taskupdateDTO);
             res.status(200).send({message:"수정 완료", data: result});
         } catch (e) {
             next(e);
@@ -83,8 +83,8 @@ export const taskController = {
     },
     deleteTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {task_id} = req.params;
-            await taskService.deleteTask(Number(task_id));
+            const {taskId} = req.params;
+            await taskService.deleteTask(Number(taskId));
             res.status(200).send({message:"삭제완료"})
         } catch (e) {
             next(e);

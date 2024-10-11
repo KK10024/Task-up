@@ -8,7 +8,7 @@ export const taskService = {
         const { title, sub_title, content, status, members, startDate, endDate, user_id } = taskcreateDTO;
         
         // 입력값 체크 
-        if (!title || !sub_title  || !content || !status || !members) throw new AppError('필수 입력값입니다.', 400);
+        if (!title || !sub_title  || !content  || !members) throw new AppError('필수 입력값입니다.', 400);
         if (!user_id) throw new AppError('작성자는 필수입니다.', 400);
 
         // 이름으로 사용자 검색

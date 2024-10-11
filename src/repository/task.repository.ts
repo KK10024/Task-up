@@ -1,14 +1,14 @@
 import { ITask } from '../dto/task.dto';
 import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
-import { TaskStatus } from '../entity/task.status'; // enum import
+import { TaskStatus } from '../entity/task.status';
 import { AppError } from '../util/AppError';
+import {MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 
 export const taskRepository = {
-    // 새로운 Task 엔티티 생성 후 저장
     createTask: async (newTask: ITask) => {
         const repository = AppDataSource.getRepository(Task);
-        const task = repository.create(newTask); // 여기서 create() 호출
+        const task = repository.create(newTask);
         return await repository.save(task);
     },
 
@@ -40,7 +40,27 @@ export const taskRepository = {
             relations: ['user'],
         });
     },
-
+    findTaskByCalender: async(start: Date, end:Date) => {
+        const repository = AppDataSource.getRepository(Task);
+        const tasks = await repository.find({
+            where: [
+                {
+                    startDate: MoreThanOrEqual(start),
+                    endDate: LessThanOrEqual(end),
+                },
+                {
+                    startDate: LessThanOrEqual(start),
+                    endDate: MoreThanOrEqual(end),
+                },
+                {
+                    startDate: MoreThanOrEqual(start),
+                    endDate: LessThanOrEqual(end),
+                }
+            ],
+            select: ["id", "title", "startDate", "endDate"],
+        });
+        return tasks;
+    },
     updateTask: async (task: Task) => {
         const repository = AppDataSource.getRepository(Task);
         return await repository.save(task);

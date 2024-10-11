@@ -9,6 +9,8 @@ router.post('/', authenticateToken, taskController.createTask);
 router.get('/', taskController.readTask);
 // 프로젝트 상태 조회 (진행중, 완료)
 router.get('/task-status', taskController.readTasksByStatus);
+//캘린더 일정 조회
+router.get('/calender', taskController.calenderTask);
 // 단건 프로젝트 조회
 router.get('/:task_id', taskController.readOneTask); 
 // 프로젝트 수정

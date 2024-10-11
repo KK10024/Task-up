@@ -1,3 +1,4 @@
+import { KoreanTime } from '../util/DateUtil';
 import { TaskStatus } from '../entity/task.status';
 
 export class TaskDTO {
@@ -65,12 +66,22 @@ export class TaskResponseDTO {
         this.content = task.content;
         this.status = task.status;
         this.members = task.members;
-        this.startDate = new Date(task.startDate);
-        this.startDate.setHours(this.startDate.getHours() + 9); // KST로 조정
-        this.endDate = new Date(task.endDate);
-        this.endDate.setHours(this.endDate.getHours() + 9); // KST로 조정
+        this.startDate = KoreanTime(task.startDate);
+        this.endDate = KoreanTime(task.endDate);
         this.user = {
             name: task.user.name,
         };
+    }
+}
+export class CalenderResDTO{
+    id: number;
+    title: string;
+    startDate: Date;
+    endDate: Date;
+    constructor(calender: any){
+        this.id = calender.id;
+        this.title = calender.title;
+        this.startDate = KoreanTime(calender.startDate);
+        this.endDate = KoreanTime(calender.endDate);
     }
 }

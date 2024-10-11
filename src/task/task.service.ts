@@ -1,8 +1,7 @@
 import { taskRepository } from '../repository/task.repository';
-import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask} from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO} from '../dto/task.dto';
 import { AppError } from '../util/AppError';
-import { getUserByName, userRepository } from '../repository/user.repository';
-import { TaskStatus } from '../entity/task.status';
+import { getUserByName } from '../repository/user.repository';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
@@ -46,13 +45,20 @@ export const taskService = {
     },
 
     readTasksByStatus: async (status: number) => {
-        console.log(status);
-        const tasks = await taskRepository.findTasksByStatus(status);
-        if (!tasks.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
-        const result = tasks.map(task => new TaskResponseDTO(task))
+        const task = await taskRepository.findTasksByStatus(status);
+        if (!task.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
+        const result = task.map(task => new TaskResponseDTO(task))
         return result;
     },
-
+    calenderTask: async (start: Date, end: Date) => {
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new Error("유효하지 않은 날짜 형식입니다.");
+        }
+        const calender = await taskRepository.findTaskByCalender(start, end);
+        if(!calender) throw new AppError('프로젝트를 찾을 수 없습니다.',404)
+        const result = calender.map(calender => new CalenderResDTO(calender))
+        return result;
+    },
     updateTask: async(task_id: number, taskupdateDTO: taskUpdateDTO) => {
         const task = await taskRepository.findTaskById(task_id);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);

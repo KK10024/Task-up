@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
 import { createTaskDTO, taskUpdateDTO } from '../dto/task.dto';
 import { AppError } from '../util/AppError';
-import { TaskStatus } from '../entity/task.status';
 
 export const taskController = {
     createTask: async (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +15,6 @@ export const taskController = {
     },
     readTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // 쿼리에서 페이지와 페이지 크기 가져오기
             const page = Number(req.query.page);
             const pageSize = Number(req.query.pageSize);
     
@@ -58,9 +56,19 @@ export const taskController = {
     },
     calenderTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const {startDate, endDate} = req.query
             
+            if (typeof startDate !== 'string' || typeof endDate !== 'string') {
+                throw new AppError( '잘못된 날짜 형식입니다.', 400);
+            }
+            //날짜 포맷팅
+            const start = new Date(`${startDate}T00:00:00`); // 시작일 
+            const end = new Date(`${endDate}T00:00:00`); // 종료일
+
+            const result = await taskService.calenderTask(start, end);
+            res.status(200).send({message:"일정 조회", data: result });
         } catch (e) {
-            
+            next(e);
         }
     },
     updateTask: async (req: Request, res: Response, next: NextFunction) => {

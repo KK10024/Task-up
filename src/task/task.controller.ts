@@ -48,16 +48,16 @@ export const taskController = {
     },
     calenderTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {startDate, endDate} = req.query
+            const {startDate, type} = req.query
             
-            if (typeof startDate !== 'string' || typeof endDate !== 'string') {
-                throw new AppError( '잘못된 날짜 형식입니다.', 400);
+            //타입 검증
+            if (typeof startDate !== 'string' || typeof type !== 'string') {
+                throw new AppError( '잘못된 쿼리 형식입니다.', 400);
             }
-            //날짜 포맷팅
+            //날짜 포맷팅 ex) 2024-10-12 => 2024-10-12T00:00:00변환
             const start = new Date(`${startDate}T00:00:00`); // 시작일 
-            const end = new Date(`${endDate}T00:00:00`); // 종료일
 
-            const result = await taskService.calenderTask(start, end);
+            const result = await taskService.calenderTask(start, type);
             res.status(200).send({message:"일정 조회", data: result });
         } catch (e) {
             next(e);

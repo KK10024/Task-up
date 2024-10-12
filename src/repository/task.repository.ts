@@ -3,7 +3,7 @@ import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
 import { TaskStatus } from '../entity/task.status';
 import { AppError } from '../util/AppError';
-import {MoreThanOrEqual, LessThanOrEqual, FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, createQueryBuilder } from 'typeorm';
 
 export const taskRepository = {
     createTask: async (newTask: ITask) => {
@@ -32,28 +32,14 @@ export const taskRepository = {
             relations: ['user'],
         });
     },
-
-    findTaskByCalender: async(start: Date, end:Date) => {
+    findTaskByCalender : async (startDate : any): Promise<Task[]> => {
         const repository = AppDataSource.getRepository(Task);
-        const tasks = await repository.find({
-            where: [
-                {
-                    startDate: MoreThanOrEqual(start),
-                    endDate: LessThanOrEqual(end),
-                },
-                {
-                    startDate: LessThanOrEqual(start),
-                    endDate: MoreThanOrEqual(end),
-                },
-                {
-                    startDate: MoreThanOrEqual(start),
-                    endDate: LessThanOrEqual(end),
-                }
-            ],
-            select: ["id", "title", "startDate", "endDate"],
-        });
-        return tasks;
-    },
+        return await repository
+          .createQueryBuilder('task')
+          .where('task.startDate >= :start', { start: startDate.start })
+          .andWhere('task.startDate <= :end', { end: startDate.end })
+          .getMany();
+      },
     updateTask: async (task: Task) => {
         const repository = AppDataSource.getRepository(Task);
         return await repository.save(task);

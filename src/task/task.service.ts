@@ -2,6 +2,7 @@ import { taskRepository } from '../repository/task.repository';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO} from '../dto/task.dto';
 import { AppError } from '../util/AppError';
 import { userRepository } from '../repository/user.repository';
+import { calendarUtil } from '../util/DateUtil';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
@@ -44,12 +45,14 @@ export const taskService = {
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
         return new TaskResponseDTO(task);
     },
-    // 수정해야함 년, 월, 일
-    calenderTask: async (start: Date, end: Date) => {
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+
+    calenderTask: async (start: Date, type: string) => {
+        if (isNaN(start.getTime())) {
             throw new Error("유효하지 않은 날짜 형식입니다.");
         }
-        const calender = await taskRepository.findTaskByCalender(start, end);
+        const startDate = calendarUtil(start, type);
+        const calender = await taskRepository.findTaskByCalender(startDate);
+       
         if(!calender) throw new AppError('프로젝트를 찾을 수 없습니다.',404)
         const result = calender.map(calender => new CalenderResDTO(calender))
         return result;

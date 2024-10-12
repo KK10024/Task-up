@@ -3,7 +3,7 @@ import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
 import { TaskStatus } from '../entity/task.status';
 import { AppError } from '../util/AppError';
-import {MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import {MoreThanOrEqual, LessThanOrEqual, FindOptionsWhere } from 'typeorm';
 
 export const taskRepository = {
     createTask: async (newTask: ITask) => {
@@ -12,9 +12,12 @@ export const taskRepository = {
         return await repository.save(task);
     },
 
-    findTasksWithPagination: async (page: number, pageSize: number) => {
+    findTasksWithPagination: async (page: number, pageSize: number, status?: string) => {
+        const statusCheck: FindOptionsWhere<Task> = status ? { status: status as TaskStatus } : {};
+
         const repository = AppDataSource.getRepository(Task);
         const [tasks, total] = await repository.findAndCount({
+            where: statusCheck,
             relations: ['user'],
             skip: (page - 1) * pageSize,
             take: pageSize,
@@ -30,16 +33,6 @@ export const taskRepository = {
         });
     },
 
-    findTasksByStatus: async (status: number) => {
-        const repository = AppDataSource.getRepository(Task);
-        if (!Object.values(TaskStatus).includes(status)) {
-            throw new AppError('유효하지 않은 상태 값입니다.', 400);
-        }
-        return await repository.find({
-            where: { status },
-            relations: ['user'],
-        });
-    },
     findTaskByCalender: async(start: Date, end:Date) => {
         const repository = AppDataSource.getRepository(Task);
         const tasks = await repository.find({

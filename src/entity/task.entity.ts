@@ -19,8 +19,8 @@ export class Task {
     @Column({type: 'enum', enum: TaskStatus, default: TaskStatus.IN_PROGRESS})
     status: TaskStatus;
 
-    @Column({type: 'json'})
-    members: string[];
+    @Column("json")
+    members: { uuid: string; name: string;}[];
 
     @Column({type:'datetime', name:'start_date'})
     startDate: Date;

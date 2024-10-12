@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 //user 라우터 연결
-app.use('/users', userRouter);
+app.use("/user", userRouter);
 app.use('/tasks', taskRouter);
 
 //에러 핸들러 설정

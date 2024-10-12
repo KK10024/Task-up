@@ -7,29 +7,30 @@ export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
         const { title, sub_title, content, status, members, startDate, endDate, user_id } = taskcreateDTO;
         
-        // 입력값 체크 
-        if (!title || !sub_title  || !content  || !members) throw new AppError('필수 입력값입니다.', 400);
+        if (!title || !sub_title  || !content) throw new AppError('필수 입력값입니다.', 400);
         if (!user_id) throw new AppError('작성자는 필수입니다.', 400);
 
         // 이름으로 사용자 검색
         const member = await Promise.all(members.map(userRepository.getUserByName));
-        
-        const newTask: ITask= {
+        const newTask: ITask = {
             title,
             sub_title,
             content,
             status,
-            members: member,
+            members: member.map(member => ({
+                uuid: member.uuid,
+                name: member.name
+            })),
             startDate,
             endDate,
-            user : {uuid: user_id} 
+            user: { uuid: user_id }
         };
-        const result = await taskRepository.createTask(newTask)
-        return new TaskResponseDTO(result);
+        const result = await taskRepository.createTask(newTask);
+        return ;
     },
 
-    readTask: async (page: number, pageSize: number) => {
-        const { tasks, total } = await taskRepository.findTasksWithPagination(page, pageSize);
+    readTask: async (page: number, pageSize: number, status?: string) => {
+        const { tasks, total } = await taskRepository.findTasksWithPagination(page, pageSize, status);
         return {
             total,
             page,
@@ -43,13 +44,7 @@ export const taskService = {
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
         return new TaskResponseDTO(task);
     },
-
-    readTasksByStatus: async (status: number) => {
-        const task = await taskRepository.findTasksByStatus(status);
-        if (!task.length) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
-        const result = task.map(task => new TaskResponseDTO(task))
-        return result;
-    },
+    // 수정해야함 년, 월, 일
     calenderTask: async (start: Date, end: Date) => {
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
             throw new Error("유효하지 않은 날짜 형식입니다.");
@@ -59,21 +54,31 @@ export const taskService = {
         const result = calender.map(calender => new CalenderResDTO(calender))
         return result;
     },
-    updateTask: async(taskId: number, taskupdateDTO: taskUpdateDTO) => {
+
+    updateTask: async (taskId: number, taskupdateDTO: taskUpdateDTO) => {
         const task = await taskRepository.findTaskById(taskId);
-        if (!task) throw new AppError('프로젝트를 찾을 수 없습니다', 404);
-
+        if (!task) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);
+        
+        //members 들어오는 부분 처리 
         if (taskupdateDTO.members) {
-            const members = await Promise.all(taskupdateDTO.members.map(userRepository.getUserByName));
-            if (!members.every(member => member)) throw new AppError('멤버를 찾을 수 없습니다.', 404);
-            task.members = members; // 업데이트할 멤버로 설정
+            const members = await Promise.all(
+                taskupdateDTO.members.map(async (member) => {
+                    const user = await userRepository.getUserByName(member.name);
+                    if (!user) {
+                        throw new AppError(`사용자를 찾을 수 없습니다: ${member.name}`, 404);
+                    }
+                    return { uuid: user.uuid, name: user.name };
+                })
+            );
+            task.members = members;
         }
-
-        Object.assign(task, taskupdateDTO);
+        //members 뺴고 나머지
+        const { members, ...rest } = taskupdateDTO;
+        Object.assign(task, rest);
+    
         const result = await taskRepository.updateTask(task);
         return new TaskResponseDTO(result);
     },
-
     deleteTask: async(taskId: number) => {
         const task = await taskRepository.softDeleteTask(taskId);
         if (task.affected === 0) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);

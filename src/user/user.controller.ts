@@ -18,7 +18,7 @@ export const userController = {
         try {
             const loginUserDto: LoginUserDto = req.body;
             const { token } = await userService.signIn(loginUserDto);
-            //토큰 저장
+            //토큰 저장 ?? 이래도 되는건지 모름 찾아봐야함
             res.cookie('token', token, {
                 httpOnly: true, // JavaScript에서 쿠키 접근 불가
                 secure: process.env.NODE_ENV === 'production', // HTTPS에서만 전송, development: 개발 환경 production: 배포 환경 test: 테스트 환경

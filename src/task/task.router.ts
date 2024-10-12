@@ -7,8 +7,6 @@ const router = Router();
 router.post('/', authenticateToken, taskController.createTask);
 // 전체 프로젝트 조회
 router.get('/', taskController.readTask);
-// 프로젝트 상태 조회 (진행중, 완료)
-router.get('/task-status', taskController.readTasksByStatus);
 //캘린더 일정 조회
 router.get('/calender', taskController.calenderTask);
 // 단건 프로젝트 조회

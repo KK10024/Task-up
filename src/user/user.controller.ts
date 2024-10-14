@@ -9,12 +9,17 @@ import { AppError } from "../util/AppError";
 const verificationCodeStorage: { [email: string]: { code: string, expiresAt: number } } = {};
 
 export const userController = {
-    VerificationCode: async (req: Request, res: Response, next: NextFunction) => {
+    verificationCode: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email } = req.body;
-
+            // 이메일코드 재발송 방지
+            if (verificationCodeStorage[email]) {
+                const storedData = verificationCodeStorage[email];
+                if (storedData.expiresAt > Date.now()) {
+                    throw new AppError("이미 인증코드가 발송되었습니다", 400);
+                }
+            }
             const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-            
             // 5분 유효
             const expiresAt = Date.now() + 5 * 60 * 1000;
     

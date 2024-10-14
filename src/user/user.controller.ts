@@ -2,14 +2,52 @@ import { userService } from "./user.service";
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth.token';
+import { sendMail } from '../util/mailer'; // 이메일 전송 함수
+import { AppError } from "../util/AppError";
 
+// 스토리지에 저장 함 새로고침 시 날라가버림 방법 찾아야함
+const verificationCodeStorage: { [email: string]: { code: string, expiresAt: number } } = {};
 
 export const userController = {
+    VerificationCode: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { email } = req.body;
+
+            const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            // 5분 유효
+            const expiresAt = Date.now() + 5 * 60 * 1000;
+    
+            verificationCodeStorage[email] = { code: verificationCode, expiresAt };
+
+            await sendMail(email, '이메일 인증 코드입니다.', `인증코드는: ${verificationCode}`);
+    
+            res.status(200).json({ message: `인증번호가 ${email}로 전송되었습니다.` });
+        } catch (e) {
+            return next(e);
+        }
+    },
+    
+    // 회원가입
     signUp: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const createUserDto: CreateUserDto = req.body;
-            await userService.signUp(createUserDto);
-            res.status(201).send({message:'회원가입 완료'});
+            const createuserDto : CreateUserDto = req.body;
+            const {code} = req.body;
+            const storedData = verificationCodeStorage[createuserDto.email];
+            
+            if (!storedData || storedData.expiresAt < Date.now()) {
+                throw new AppError("인증 코드가 만료되었거나 유효하지 않습니다.", 400);
+            }
+    
+            if (storedData.code !== code) {
+                throw new AppError("유효한 코드를 입력해주세요.", 400);
+            }
+    
+            delete verificationCodeStorage[createuserDto.email];
+    
+            await userService.signUp(createuserDto);
+    
+            res.status(201).send({ message: '회원가입 완료' });
         } catch (e) {
             return next(e);
         }

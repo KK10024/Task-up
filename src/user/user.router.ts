@@ -6,8 +6,12 @@ import { authenticateToken } from "../middleware/auth.token";
 
 const router = Router();
 
+
 router.post('/sign-up',validateDto(CreateUserDto), userController.signUp);
 router.post('/sign-in',validateDto(LoginUserDto), userController.signIn);
+
+router.post('/email-code',userController.VerificationCode);
+
 router.patch('/profile', authenticateToken, userController.updateUser);
 router.delete('/profile', authenticateToken, userController.deleteUser);
 

@@ -3,11 +3,11 @@ import { User } from '../entity/user.entity';
 import { AppDataSource } from '../config/db';
 import { AppError } from '../util/AppError';
 
+const repository = AppDataSource.getRepository(User);
 
 export const userRepository = {
     // 이름으로 검색 후 uuid, name 내보냄
     getUserByName : async (username: string): Promise<{ uuid: string, name: string;} | null> => {
-        const repository = AppDataSource.getRepository(User);
         const user = await repository.findOne({
             where: { name: username }
         });
@@ -28,24 +28,19 @@ export const userRepository = {
     //     return {name: user.name};
     // },
     findUserByEmail: async (email: string): Promise<User | null> => {
-        const repository = AppDataSource.getRepository(User);
         return await repository.findOne({ where: { email } });
     },
     createUser: async (user: Partial<User>): Promise<User> => {
-        const repository = AppDataSource.getRepository(User);
         const newUser = repository.create(user);
         return await repository.save(newUser);
     },
     findByUser: async (user_id: string) => {
-        const repository = AppDataSource.getRepository(User);
         return repository.findOne({where: {uuid : user_id}});
     },
     updateUser: async (user: User) => {
-        const repository = AppDataSource.getRepository(User);
         return await repository.save(user);
     },
     deleteUser: async (user_id: string) => {
-        const repository = AppDataSource.getRepository(User);
         return await repository.softDelete(user_id);
     },
 }

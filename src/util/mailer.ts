@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
         from: process.env.EMAIL_USER,
         to,
         subject,
-        text, 
+        html:text, 
       };
   
       // 메일 전송

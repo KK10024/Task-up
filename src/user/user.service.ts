@@ -27,13 +27,14 @@ export const userService = {
 
         verificationCodeStorage[email] = { code: verificationCode, expiresAt };
 
-        await sendMail(email, '이메일 인증 코드입니다.', `인증코드는: ${verificationCode}`);
+        await sendMail(email, '이메일 인증 코드입니다.', `인증코드: ${verificationCode}`);
         return email;
     },
     passwordResetLink: async(email: string, link: string) => {
         const user = await userRepository.findUserByEmail(email);
         if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
-        await sendMail(email, "비밀번호 재설정 페이지", `Link: ${link}`);
+        const htmlLink = `<p><a href="${link}">비밀번호 재설정 링크</a></p>`;
+        await sendMail(email, "비밀번호 재설정 페이지", htmlLink);
         return email;
     },
     passwordReset: async(email: string, password: string) =>{

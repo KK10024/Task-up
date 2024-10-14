@@ -1,18 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { ImgType } from './img.types';
 @Entity()
-export class Img {
+export class Image {
     @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
-    type_id: string;
+    typeId: string;
 
     @Column({type: 'enum', enum: ImgType})
     type: ImgType;
     
     @Column()
-    img_addr: string;
+    imgAddr: string;
 
     @CreateDateColumn({type:'datetime', name:"created_at"})
     createdAt: Date;

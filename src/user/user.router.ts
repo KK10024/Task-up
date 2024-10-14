@@ -11,7 +11,9 @@ router.post('/sign-up',validateDto(CreateUserDto), userController.signUp);
 router.post('/sign-in',validateDto(LoginUserDto), userController.signIn);
 
 router.post('/email-code',userController.verificationCode);
-router.post('/reset-pw', userController.passwordReset);
+
+router.post('/password-reset', userController.passwordResetLink);
+router.post('/password-reset/confirm', userController.passwordReset);
 
 router.patch('/profile', authenticateToken, userController.updateUser);
 router.delete('/profile', authenticateToken, userController.deleteUser);

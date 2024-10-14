@@ -30,19 +30,22 @@ export const userService = {
         await sendMail(email, '이메일 인증 코드입니다.', `인증코드는: ${verificationCode}`);
         return email;
     },
-    passwordReset: async(email: string) => {
+    passwordResetLink: async(email: string, link: string) => {
         const user = await userRepository.findUserByEmail(email);
         if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
-        
-        const temporaryPassword = Math.random().toString(36).slice(-8);
-        const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
-    
-        user.password = hashedPassword;
-        await userRepository.updateUser(user);
-
-        await sendMail(email, "임시 비밀번호 발급", `임시 비밀번호: ${temporaryPassword}`);
+        await sendMail(email, "비밀번호 재설정 페이지", `Link: ${link}`);
         return email;
-    }, 
+    },
+    passwordReset: async(email: string, password: string) =>{
+        const user = await userRepository.findUserByEmail(email);
+        if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        
+        await userRepository.updateUser(user);
+        return;
+    },
     signUp: async (createUserDto: CreateUserDto, code: string) => {
         const { name, email, password } = createUserDto;
 

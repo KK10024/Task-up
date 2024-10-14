@@ -11,7 +11,7 @@ export class Task {
     title: string;
 
     @Column({type:'varchar',length:'50', nullable: false })
-    sub_title: string;
+    subTitle: string;
 
     @Column('longtext')    
     content: string;

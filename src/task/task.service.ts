@@ -47,9 +47,8 @@ export const taskService = {
     },
 
     calenderTask: async (start: Date, type: string) => {
-        if (isNaN(start.getTime())) {
-            throw new Error("유효하지 않은 날짜 형식입니다.");
-        }
+        if (isNaN(start.getTime())) throw new AppError("날짜형식이 유효하지않습니다.", 400);
+        
         const startDate = calendarUtil(start, type);
         const calender = await taskRepository.findTaskByCalender(startDate);
        

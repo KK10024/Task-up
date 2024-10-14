@@ -9,7 +9,7 @@ export function KoreanTime(dateString: string | Date): Date {
     return koreanDate;
 }
 
-export const calendarUtil = (startDate: Date, type: string) => {
+export const calendarUtil = (startDate: string, type: string) => {
     // 일단 검색 시 한국 시간으로 포맷 -> DB에 저장되는 값에 따라 변경 할 예정
     const startDateKST = KoreanTime(startDate);
     let start: string, end: string;
@@ -21,7 +21,7 @@ export const calendarUtil = (startDate: Date, type: string) => {
         break;
   
       case 'week':
-        start = new Date(startDateKST.getFullYear(), startDateKST.getMonth(), startDate.getDate()).toISOString();
+        start = new Date(startDateKST.getFullYear(), startDateKST.getMonth(), startDateKST.getDate()).toISOString();
         end = new Date(startDateKST.getFullYear(), startDateKST.getMonth(), startDateKST.getDate() + 7).toISOString();
         break;
   

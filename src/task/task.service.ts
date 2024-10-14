@@ -1,21 +1,21 @@
 import { taskRepository } from '../repository/task.repository';
-import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO} from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO, calenderReqDTO} from '../dto/task.dto';
 import { AppError } from '../util/AppError';
 import { userRepository } from '../repository/user.repository';
 import { calendarUtil } from '../util/DateUtil';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
-        const { title, sub_title, content, status, members, startDate, endDate, user_id } = taskcreateDTO;
+        const { title, subTitle, content, status, members, startDate, endDate, userId } = taskcreateDTO;
         
-        if (!title || !sub_title  || !content) throw new AppError('필수 입력값입니다.', 400);
-        if (!user_id) throw new AppError('작성자는 필수입니다.', 400);
+        if (!title || !subTitle  || !content) throw new AppError('필수 입력값입니다.', 400);
+        if (!userId) throw new AppError('작성자는 필수입니다.', 400);
 
         // 이름으로 사용자 검색
         const member = await Promise.all(members.map(userRepository.getUserByName));
         const newTask: ITask = {
             title,
-            sub_title,
+            subTitle,
             content,
             status,
             members: member.map(member => ({
@@ -24,7 +24,7 @@ export const taskService = {
             })),
             startDate,
             endDate,
-            user: { uuid: user_id }
+            user: { uuid: userId }
         };
         const result = await taskRepository.createTask(newTask);
         return ;
@@ -46,11 +46,15 @@ export const taskService = {
         return new TaskResponseDTO(task);
     },
 
-    calenderTask: async (start: Date, type: string) => {
-        if (isNaN(start.getTime())) throw new AppError("날짜형식이 유효하지않습니다.", 400);
-        
-        const startDate = calendarUtil(start, type);
-        const calender = await taskRepository.findTaskByCalender(startDate);
+    calenderTask: async (calenderReqdto: calenderReqDTO) => {
+        const { startDate, type } = calenderReqdto;
+
+        if (isNaN(new Date(startDate).getTime())) {
+            throw new AppError('startDate 형식이 잘못되었습니다.', 400);
+        }
+
+        const clenderDate = calendarUtil(startDate, type);
+        const calender = await taskRepository.findTaskByCalender(clenderDate);
        
         if(!calender) throw new AppError('프로젝트를 찾을 수 없습니다.',404)
         const result = calender.map(calender => new CalenderResDTO(calender))

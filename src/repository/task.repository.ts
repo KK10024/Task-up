@@ -29,11 +29,11 @@ export const taskRepository = {
             relations: ['user'],
         });
     },
-    findTaskByCalender : async (startDate : any): Promise<Task[]> => {
+    findTaskByCalender : async (clenderDate : any): Promise<Task[]> => {
         return await repository
           .createQueryBuilder('task')
-          .where('task.startDate >= :start', { start: startDate.start })
-          .andWhere('task.startDate <= :end', { end: startDate.end })
+          .where('task.startDate >= :start', { start: clenderDate.start })
+          .andWhere('task.startDate <= :end', { end: clenderDate.end })
           .getMany();
       },
     updateTask: async (task: Task) => {

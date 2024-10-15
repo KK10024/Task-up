@@ -3,8 +3,9 @@ import { taskRepository } from '../repository/task.repository';
 import { sendToClients } from '../middleware/sseHandler';
 
 export const scheduleNotifications = () => {
-    // 매 1분마다 실행
-    cron.schedule('*/1 * * * *', async () => {
+    // */1 * * * * 매 1분마다 실행 1 * * * * 매 시간 1분마다 실행 
+    cron.schedule('0 0 * * *', async () => {
+        // 이건 자정 마다 실행
         try {
             const notifications = await taskRepository.getTasksDue();
 

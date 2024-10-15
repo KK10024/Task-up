@@ -60,10 +60,6 @@ export const taskService = {
         const result = calender.map(calender => new CalenderResDTO(calender))
         return result;
     },
-    // 일정 스케줄러
-    // getTasksDue: async () => {
-    //     return await taskRepository.getTasksDue();
-    // },
     updateTask: async (taskId: number, taskupdateDTO: taskUpdateDTO) => {
         const task = await taskRepository.findTaskById(taskId);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);

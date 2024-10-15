@@ -5,6 +5,7 @@ import { AppError } from '../util/AppError';
 import { AuthenticatedRequest } from '../middleware/auth.token'; // req.user 타입 정의를 가져옴
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { scheduleNotifications } from '../util/task.sheduler';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -69,20 +70,6 @@ export const taskController = {
             next(e);
         }
     },
-    // getDueTasks: async(req: Request, res: Response, next: NextFunction)  => {
-    //     try {
-    //       const tasksDue = await taskService.getTasksDue(); // 서비스에서 기한 임박한 태스크 조회
-    //       if (tasksDue.length > 0) {
-    //         tasksDue.forEach(task => {
-    //           // 알림 전송 로직 추가
-    //           console.log(`Task Due: ${task.title} is due soon!`);
-    //         });
-    //       }
-    //       res.status(200).json(tasksDue);
-    //     } catch (e) {
-    //         next(e);
-    //     }
-    // },
     updateTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {taskId} = req.params;

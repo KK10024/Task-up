@@ -16,6 +16,4 @@ router.patch('/:taskId', taskController.updateTask);
  // 프로젝트 삭제
 router.delete('/:taskId', taskController.deleteTask);
 
-// router.get('/due', taskController.getDueTasks);
-
 export const taskRouter = router;

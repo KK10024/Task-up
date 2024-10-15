@@ -62,11 +62,22 @@ export const userController = {
             next(e);
         }
     },
-    updateUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    getUserProfile: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.user.id;
+            const result = await userService.getUserProfile(userId);
+            res.status(200).send({message:"회원 조회", data:result})
+        } catch (e) {
+            next(e);
+        }
+    },
+    updateUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) throw new AppError("파일경로 이슈", 400)
+            const userId = req.user.id;
+            const imagePath = req.file.path; // 업로드된 이미지 경로
             const updateUserDto: UpdateUserDto = req.body;
-            const result = await userService.updateUser(userId, updateUserDto);
+            const result = await userService.updateUser(userId, imagePath, updateUserDto);
             res.status(200).send({message:"수정 완료"});
         } catch (e) {
             next(e);

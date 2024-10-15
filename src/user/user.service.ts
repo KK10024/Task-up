@@ -4,6 +4,10 @@ import { AppError } from '../util/AppError';
 import { generateToken } from '../util/jwt';
 import { userRepository } from '../repository/user.repository';
 import { sendMail } from '../util/mailer'; // 이메일 전송 함수
+import { ImgRepository } from '../repository/img.repository';
+import { Iimg } from '../dto/img.dto';
+import { ImgType } from '../entity/img.types';
+import { Image } from 'src/entity/img.entity';
 
 
 // 스토리지에 저장 함 새로고침 시 날라가버림 방법 찾아야함
@@ -102,9 +106,19 @@ export const userService = {
 
         return { token };
     },
-    updateUser: async(userId: string, updateUserdto: UpdateUserDto) => {
+    getUserProfile: async(userId: string) =>{
+        const user = await userRepository.getUserProfile(userId);
+        return user;
+    },
+    updateUser: async(userId: string, imagePath: string, updateUserdto: UpdateUserDto) => {
         const user = await userRepository.findByUser(userId);
         if(!user) throw new AppError("사용자를 찾을 수 없습니다.", 404);
+        const newImage: Iimg = {
+            type: ImgType.USER,
+            imgAddr: imagePath,
+        };
+        const imgId = await ImgRepository.imgUpload(newImage);
+        user.profileImage = {id :imgId} as Image
         Object.assign(user, updateUserdto);
         await userRepository.updateUser(user);
     },

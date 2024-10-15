@@ -34,8 +34,16 @@ export const userRepository = {
         const newUser = repository.create(user);
         return await repository.save(newUser);
     },
-    findByUser: async (user_id: string) => {
-        return repository.findOne({where: {uuid : user_id}});
+    findByUser: async (userId: string) => {
+        return repository.findOne({where: {uuid : userId}});
+    },
+    getUserProfile: async(userId : string) => {
+        return repository
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.profileImage", "image")
+        .select(["user.name", "image.imgAddr"])
+        .where("user.uuid = :id", { id: userId })
+        .getOne();
     },
     updateUser: async (user: User) => {
         return await repository.save(user);

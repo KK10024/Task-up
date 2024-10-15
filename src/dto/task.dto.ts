@@ -12,8 +12,14 @@ export class TaskDTO {
     endDate: Date;
     userId: string;
 }
-
-export class createTaskDTO extends TaskDTO { }
+export class createTaskDTO extends TaskDTO { 
+    @IsString()
+    title:string;
+    @IsString()
+    subTitle: string;
+    @IsString()
+    content: string;
+}
 export interface ITask {
     title: string;
     subTitle: string;

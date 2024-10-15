@@ -10,9 +10,13 @@ export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.user.id;
-            const takscreateDTO: createTaskDTO = req.body;
-            takscreateDTO.userId = userId; 
-            const result = await taskService.createTask(takscreateDTO);
+            const taskCreateDTO: createTaskDTO = plainToInstance(createTaskDTO, req.body);
+            taskCreateDTO.userId = userId;
+            const errors = await validate(taskCreateDTO);
+            if (errors.length > 0) {
+                throw new AppError('잘못된 요청 데이터입니다.', 400);
+            }
+            const result = await taskService.createTask(taskCreateDTO);
             res.status(201).send({message:"생성 완료", data: result});
         } catch (e) {
             next(e);
@@ -65,6 +69,20 @@ export const taskController = {
             next(e);
         }
     },
+    // getDueTasks: async(req: Request, res: Response, next: NextFunction)  => {
+    //     try {
+    //       const tasksDue = await taskService.getTasksDue(); // 서비스에서 기한 임박한 태스크 조회
+    //       if (tasksDue.length > 0) {
+    //         tasksDue.forEach(task => {
+    //           // 알림 전송 로직 추가
+    //           console.log(`Task Due: ${task.title} is due soon!`);
+    //         });
+    //       }
+    //       res.status(200).json(tasksDue);
+    //     } catch (e) {
+    //         next(e);
+    //     }
+    // },
     updateTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {taskId} = req.params;

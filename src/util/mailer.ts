@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { AppError } from './AppError';
 
 
 const transporter = nodemailer.createTransport({
@@ -20,6 +21,6 @@ const transporter = nodemailer.createTransport({
       // 메일 전송
       await transporter.sendMail(mailOptions);
     } catch (e) {
-      console.error('Error sending email:', e);
+      throw new AppError("이메일 전송 오류", 400);
     }
 };

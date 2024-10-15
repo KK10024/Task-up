@@ -1,16 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ImgType } from './img.types';
 @Entity()
 export class Image {
     @PrimaryGeneratedColumn()
     id: number;
-
-    @Column()
-    typeId: string;
-
-    @Column({type: 'enum', enum: ImgType})
-    type: ImgType;
     
+    @Column()
+    type: ImgType;  // 이미지 유형을 나타내는 값
+
     @Column()
     imgAddr: string;
 

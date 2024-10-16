@@ -95,6 +95,7 @@ export const taskRepository = {
                         break;
                 }
             }
+            //>
             if (messages.length > 0) {
             members.forEach(member => {
                 notifications.push({ taskId, messages: [`참여자에게 알림 전송: ${messages.join(', ')}`] });

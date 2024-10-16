@@ -2,10 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
 import { createTaskDTO, taskUpdateDTO, calenderReqDTO } from '../dto/task.dto';
 import { AppError } from '../util/AppError';
-import { AuthenticatedRequest } from '../middleware/auth.token'; // req.user 타입 정의를 가져옴
+import { AuthenticatedRequest } from '../middleware/auth.token';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { scheduleNotifications } from '../util/task.sheduler';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

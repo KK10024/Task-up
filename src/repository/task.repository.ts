@@ -47,7 +47,7 @@ export const taskRepository = {
         const today = new Date();
         
         // 오늘을 기준으로 1일, 3일, 7일 후의 날짜 계산
-        const deadlines = [1, 3, 6].map(days => new Date(today.getTime() + (days * 24 * 60 * 60 * 1000)));
+        const deadlines = [1, 3, 7].map(days => new Date(today.getTime() + (days * 24 * 60 * 60 * 1000)));
         
         const formatDate = (date: Date) => {
             const year = date.getFullYear();

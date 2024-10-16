@@ -108,7 +108,12 @@ export const userService = {
     },
     getUserProfile: async(userId: string) =>{
         const user = await userRepository.getUserProfile(userId);
-        return user;
+        const profileImageUrl = user.profileImage.imgAddr.replace(/\\/g, '/');
+        return {
+            email: user.email,
+            name: user.name,
+            profileImage: `${process.env.BASE_URL}/${profileImageUrl}`,
+        };
     },
     updateUser: async(userId: string, imagePath: string, updateUserdto: UpdateUserDto) => {
         const user = await userRepository.findByUser(userId);

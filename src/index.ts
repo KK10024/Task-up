@@ -1,12 +1,13 @@
 import express, { Express} from "express";
 import cookieParser from 'cookie-parser';
-import { AppDataSource } from './config/db'; // 경로를 맞게 조정
+import { AppDataSource } from './config/db';
 import dotenv from 'dotenv';
 import { userRouter } from './user/user.router'; 
 import { errorHandler } from './middleware/errorHandler'; // 에러 처리 미들웨어 가져오기
 import { taskRouter } from "./task/task.router";
+import { scheduleNotifications } from './util/task.sheduler';
 import { sseHandler } from "./middleware/sseHandler";
-import { scheduleNotifications } from './util/task.sheduler'; // 스케줄러 파일 경로 조정
+import path from 'path';
 import cors from 'cors';
 
 //.env 파일 불러오기
@@ -26,13 +27,17 @@ scheduleNotifications();
 // 쿠키 파싱
 app.use(cookieParser());
 
+//이미지 파일
+app.use('/uploads/imgs', express.static(path.join(__dirname, 'uploads', 'imgs')));
+
 // 미들웨어 설정
 app.use(express.json());
+
+app.get('/events', sseHandler);
 
 //user 라우터 연결
 app.use("/user", userRouter);
 app.use('/tasks', taskRouter);
-app.get('/events', sseHandler);
 
 //에러 핸들러 설정
 app.use(errorHandler)

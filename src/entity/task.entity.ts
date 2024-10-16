@@ -28,6 +28,9 @@ export class Task {
     @Column({type:'datetime', name:'end_date'})
     endDate: Date;
 
+    @Column({type:'boolean', name: 'task_schedule', default: true})
+    taskSchedule: boolean;
+
     @CreateDateColumn({type:'datetime', name:"created_at"})
     createdAt: Date;
     

@@ -41,7 +41,7 @@ export const userRepository = {
         return repository
         .createQueryBuilder("user")
         .leftJoinAndSelect("user.profileImage", "image")
-        .select(["user.name", "image.imgAddr"])
+        .select(["user.email", "user.name", "image.imgAddr"])
         .where("user.uuid = :id", { id: userId })
         .getOne();
     },

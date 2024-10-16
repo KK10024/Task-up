@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { AppError } from './AppError';
 
 
 const transporter = nodemailer.createTransport({
@@ -8,19 +9,18 @@ const transporter = nodemailer.createTransport({
       pass: process.env.EMAIL_PASS,
     },
   });
- // 예제보고 만든 함수 
   export const sendMail = async (to: string, subject: string, text: string) => {
     try {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to,
         subject,
-        text, 
+        html:text, 
       };
   
       // 메일 전송
       await transporter.sendMail(mailOptions);
     } catch (e) {
-      console.error('Error sending email:', e);
+      throw new AppError("이메일 전송 오류", 400);
     }
 };

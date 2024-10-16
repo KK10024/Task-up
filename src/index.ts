@@ -5,12 +5,24 @@ import dotenv from 'dotenv';
 import { userRouter } from './user/user.router'; 
 import { errorHandler } from './middleware/errorHandler'; // 에러 처리 미들웨어 가져오기
 import { taskRouter } from "./task/task.router";
+import { sseHandler } from "./middleware/sseHandler";
+import { scheduleNotifications } from './util/task.sheduler'; // 스케줄러 파일 경로 조정
+import cors from 'cors';
 
 //.env 파일 불러오기
 dotenv.config();
 
 const app: Express = express();
 
+//cors 설정 
+app.use(
+    cors({
+      origin: "*",
+    }),
+  );
+
+// 알림 스케쥴러 등록
+scheduleNotifications();
 // 쿠키 파싱
 app.use(cookieParser());
 
@@ -20,6 +32,7 @@ app.use(express.json());
 //user 라우터 연결
 app.use("/user", userRouter);
 app.use('/tasks', taskRouter);
+app.get('/events', sseHandler);
 
 //에러 핸들러 설정
 app.use(errorHandler)
@@ -29,7 +42,7 @@ AppDataSource.initialize()
     .then(() => {
         console.log("데이터베이스에 연결되었습니다.");
         // 서버를 실행하는 코드
-        const PORT = process.env.PORT || 3000;
+        const PORT = process.env.PORT || 8080;
         app.listen(PORT, () => {
             console.log(`서버가 ${PORT}에서 실행 중입니다.`);
         });

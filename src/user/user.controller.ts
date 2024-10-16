@@ -2,14 +2,46 @@ import { userService } from "./user.service";
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth.token';
+import { AppError } from "../util/AppError";
 
 
 export const userController = {
+    verificationCode: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { email } = req.body;
+            await userService.verificationCode(email);
+            res.status(200).json({ message: `인증번호가 ${email}로 전송되었습니다.` });
+        } catch (e) {
+            return next(e);
+        }
+    },
+    passwordResetLink: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { email, link } = req.body;
+            await userService.passwordResetLink(email, link);
+            res.status(200).json({ message: `비밀번호 재설정 페이지가 ${email}로 전송되었습니다.` });
+        } catch (e) {
+            next(e)
+        }
+    },
+    passwordReset: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const {email, token, password, confirmPassword} = req.body;
+
+            if(password !== confirmPassword) throw new AppError("패스워드가 일치하지 않습니다", 400);
+            await userService.passwordReset(email, password);
+            res.status(200).json({message: "패스워드가 변경되었습니다."})
+        } catch (e) {
+            next(e)
+        }
+    },
     signUp: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const createUserDto: CreateUserDto = req.body;
-            await userService.signUp(createUserDto);
-            res.status(201).send({message:'회원가입 완료'});
+            const createuserDto : CreateUserDto = req.body;
+            const {code} = req.body;
+            await userService.signUp(createuserDto, code);
+    
+            res.status(201).send({ message: '회원가입 완료' });
         } catch (e) {
             return next(e);
         }
@@ -30,11 +62,22 @@ export const userController = {
             next(e);
         }
     },
-    updateUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    getUserProfile: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.user.id;
+            const result = await userService.getUserProfile(userId);
+            res.status(200).send({message:"회원 조회", data:result})
+        } catch (e) {
+            next(e);
+        }
+    },
+    updateUser: async(req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) throw new AppError("파일경로 이슈", 400)
+            const userId = req.user.id;
+            const imagePath = req.file.path; // 업로드된 이미지 경로
             const updateUserDto: UpdateUserDto = req.body;
-            const result = await userService.updateUser(userId, updateUserDto);
+            const result = await userService.updateUser(userId, imagePath, updateUserDto);
             res.status(200).send({message:"수정 완료"});
         } catch (e) {
             next(e);

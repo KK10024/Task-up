@@ -1,16 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
-import { createTaskDTO, taskUpdateDTO } from '../dto/task.dto';
+import { createTaskDTO, taskUpdateDTO, calenderReqDTO } from '../dto/task.dto';
 import { AppError } from '../util/AppError';
 import { AuthenticatedRequest } from '../middleware/auth.token'; // req.user 타입 정의를 가져옴
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { scheduleNotifications } from '../util/task.sheduler';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const userId = req.user.id;
-            const takscreateDTO: createTaskDTO = req.body;
-            takscreateDTO.user_id = userId; 
-            const result = await taskService.createTask(takscreateDTO);
+            const taskCreateDTO: createTaskDTO = plainToInstance(createTaskDTO, req.body);
+            taskCreateDTO.userId = userId;
+            const errors = await validate(taskCreateDTO);
+            if (errors.length > 0) {
+                throw new AppError('잘못된 요청 데이터입니다.', 400);
+            }
+            const result = await taskService.createTask(taskCreateDTO);
             res.status(201).send({message:"생성 완료", data: result});
         } catch (e) {
             next(e);
@@ -48,16 +55,16 @@ export const taskController = {
     },
     calenderTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const {startDate, endDate} = req.query
-            
-            if (typeof startDate !== 'string' || typeof endDate !== 'string') {
-                throw new AppError( '잘못된 날짜 형식입니다.', 400);
+            const calenderReqdto = plainToInstance(calenderReqDTO, req.query);
+            const errors = await validate(calenderReqdto);
+    
+            if (errors.length > 0) {
+                throw new AppError('잘못된 쿼리 형식입니다.', 400);
             }
-            //날짜 포맷팅
-            const start = new Date(`${startDate}T00:00:00`); // 시작일 
-            const end = new Date(`${endDate}T00:00:00`); // 종료일
+            //날짜 포맷팅 ex) 2024-10-12 => 2024-10-12T00:00:00변환
+            new Date(`${calenderReqdto.startDate}T00:00:00`); // 시작일 
 
-            const result = await taskService.calenderTask(start, end);
+            const result = await taskService.calenderTask(calenderReqdto);
             res.status(200).send({message:"일정 조회", data: result });
         } catch (e) {
             next(e);

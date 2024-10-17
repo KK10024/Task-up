@@ -17,10 +17,11 @@ const app: Express = express();
 
 //cors 설정 
 app.use(
-    cors({
-      origin: "*",
-    }),
-  );
+	cors({
+	  origin: "http://localhost:3000",
+	  credentials: true
+        }),
+       );
 
 // 알림 스케쥴러 등록
 scheduleNotifications();
@@ -47,7 +48,7 @@ AppDataSource.initialize()
     .then(() => {
         console.log("데이터베이스에 연결되었습니다.");
         // 서버를 실행하는 코드
-        const PORT = process.env.PORT || 8080;
+        const PORT = 5000;
         app.listen(PORT, () => {
             console.log(`서버가 ${PORT}에서 실행 중입니다.`);
         });

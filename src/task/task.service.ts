@@ -3,6 +3,7 @@ import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO, 
 import { AppError } from '../util/AppError';
 import { userRepository } from '../repository/user.repository';
 import { calendarUtil } from '../util/DateUtil';
+import dayjs from 'dayjs';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
@@ -49,18 +50,22 @@ export const taskService = {
     calenderTask: async (calenderReqdto: calenderReqDTO) => {
         const { startDate, type } = calenderReqdto;
 
-        if (isNaN(new Date(startDate).getTime())) {
+        if (!dayjs(startDate).isValid()) {
             throw new AppError('startDate 형식이 잘못되었습니다.', 400);
         }
-
         const clenderDate = calendarUtil(startDate, type);
         const calender = await taskRepository.findTaskByCalender(clenderDate);
-       
-        if(!calender) throw new AppError('프로젝트를 찾을 수 없습니다.',404)
+        
+        if(!calender) throw new AppError('프로젝트를 찾을 수 없습니다.',404);
+
         const result = calender.map(calender => new CalenderResDTO(calender))
         return result;
     },
-    updateTask: async (taskId: number, taskupdateDTO: taskUpdateDTO) => {
+    updateTask: async (taskId: number, userId: string, taskupdateDTO: taskUpdateDTO) => {
+
+        const user = await userRepository.getUserByUuid(userId);
+        if(!user) throw new AppError("수정할 권한이 없습니다", 400)
+
         const task = await taskRepository.findTaskById(taskId);
         if (!task) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);
         
@@ -84,7 +89,10 @@ export const taskService = {
         const result = await taskRepository.updateTask(task);
         return new TaskResponseDTO(result);
     },
-    deleteTask: async(taskId: number) => {
+    deleteTask: async(taskId: number, userId: string) => {
+        const user = await userRepository.getUserByUuid(userId);
+        if(!user) throw new AppError("삭제할 권한이 없습니다", 400);
+
         const task = await taskRepository.softDeleteTask(taskId);
         if (task.affected === 0) throw new AppError('프로젝트를 찾을 수 없습니다.', 404);
     }

@@ -109,11 +109,13 @@ export class calenderReqDTO{
 export class CalenderResDTO{
     id: number;
     title: string;
+    name: string;
     startDate: Date;
     endDate: Date;
     constructor(calender: any){
         this.id = calender.id;
         this.title = calender.title;
+        this.name = calender.user.name;
         this.startDate = KoreanTime(calender.startDate);
         this.endDate = KoreanTime(calender.endDate);
     }

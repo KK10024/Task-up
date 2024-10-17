@@ -32,10 +32,12 @@ export const taskRepository = {
     findTaskByCalender : async (clenderDate : any): Promise<Task[]> => {
         return await repository
           .createQueryBuilder('task')
+          .leftJoinAndSelect('task.user', 'user')
           .where('task.startDate >= :start', { start: clenderDate.start })
           .andWhere('task.startDate <= :end', { end: clenderDate.end })
+          .select(['task', 'user.name'])
           .getMany();
-      },
+    },
     findTaskWithMembers: async(taskId: number): Promise<Task | null> => {
         return await repository.createQueryBuilder('task')
             .leftJoinAndSelect('task.user', 'user')
@@ -62,7 +64,7 @@ export const taskRepository = {
         const tasks = await repository
         .createQueryBuilder('task')
         .leftJoinAndSelect('task.user', 'user')
-        .where('task.task_Schedule = :taskSchedule', { taskSchedule: true })
+        .where('task.taskSchedule = :taskSchedule', { taskSchedule: true })
         .andWhere(
             '((task.endDate IN (:...dates) AND task.updatedAt <= task.endDate))',
             { dates: formattedDeadlines }

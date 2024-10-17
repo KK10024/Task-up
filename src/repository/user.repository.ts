@@ -16,17 +16,12 @@ export const userRepository = {
         }
         return {uuid: user.uuid, name: user.name};
     },
-    //uuid 로 이름 검색하는 부분 (uuid 만 저장 할 경우 필요)
-    // getUserByUuid : async (uuid : string): Promise<{name: string} | null> => {
-    //     const repository = AppDataSource.getRepository(User);
-    //     const user = await repository.findOne({
-    //         where: { uuid: uuid }
-    //     });
-    //     if (!user) {
-    //         return null;
-    //     }
-    //     return {name: user.name};
-    // },
+    getUserByUuid : async (uuid: string) => {
+        const user = await repository.findOne({
+            where: { uuid: uuid }
+        });
+        return user;
+    },
     findUserByEmail: async (email: string): Promise<User | null> => {
         return await repository.findOne({ where: { email } });
     },

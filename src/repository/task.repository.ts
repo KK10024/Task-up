@@ -66,7 +66,6 @@ export const taskRepository = {
                 { dates: formattedDeadlines }
             )
             .getMany();
-    
         const notifications: { taskId: number; messages: string[]; }[] = [];
     
         for (const task of tasks) {
@@ -74,9 +73,8 @@ export const taskRepository = {
             const messages: string[] = [];
     
             // 남은 기간 알림 생성
-            const remainingDays = dayjs(endDate).diff(today, 'day');
+            const remainingDays = dayjs(endDate).diff(today, 'day') +1;
             const formattedEndDate = dayjs(endDate).format('YYYY.MM.DD:00:00:00');
-    
             if (status === 'COMPLETED') {
                 messages.push(`완료됨: 작업 '${title}'이 완료되었습니다.`);
                 await repository.update(taskId, { taskSchedule: false });

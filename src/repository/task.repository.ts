@@ -3,6 +3,7 @@ import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
 import { TaskStatus } from '../entity/task.status';
 import { FindOptionsWhere } from 'typeorm';
+import dayjs from 'dayjs';
 
 const repository = AppDataSource.getRepository(Task);
 
@@ -44,32 +45,27 @@ export const taskRepository = {
             .where('task.id = :taskId', { taskId })
             .getOne();
     },
-    // 코드가 좀 난해해졌음 리펙토링 필요
     getTasksDue: async (): Promise<{ taskId: number; messages: string[]; }[]> => {
-        const today = new Date();
+        const today = dayjs();
         
-        // 오늘을 기준으로 1일, 3일, 7일 후의 날짜 계산
-        const deadlines = [1, 3, 7].map(days => new Date(today.getTime() + (days * 24 * 60 * 60 * 1000)));
+        const deadlines = [1, 3, 7].map(days => today.add(days, 'day'));
         
-        const formatDate = (date: Date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}:00:00:00`;
+        const formatDate = (date: dayjs.Dayjs) => {
+            return date.format('YYYY-MM-DD:00:00:00');
         };
     
         const formattedDeadlines = deadlines.map(formatDate);
     
         // 작업 조회
         const tasks = await repository
-        .createQueryBuilder('task')
-        .leftJoinAndSelect('task.user', 'user')
-        .where('task.taskSchedule = :taskSchedule', { taskSchedule: true })
-        .andWhere(
-            '((task.endDate IN (:...dates) AND task.updatedAt <= task.endDate))',
-            { dates: formattedDeadlines }
-        )
-        .getMany();
+            .createQueryBuilder('task')
+            .leftJoinAndSelect('task.user', 'user')
+            .where('task.taskSchedule = :taskSchedule', { taskSchedule: true })
+            .andWhere(
+                '((task.endDate IN (:...dates) AND task.updatedAt <= task.endDate))',
+                { dates: formattedDeadlines }
+            )
+            .getMany();
     
         const notifications: { taskId: number; messages: string[]; }[] = [];
     
@@ -78,8 +74,8 @@ export const taskRepository = {
             const messages: string[] = [];
     
             // 남은 기간 알림 생성
-            const remainingDays = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-            const formattedEndDate = `${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}.${String(endDate.getDate()).padStart(2, '0')}:00:00:00`;
+            const remainingDays = dayjs(endDate).diff(today, 'day');
+            const formattedEndDate = dayjs(endDate).format('YYYY.MM.DD:00:00:00');
     
             if (status === 'COMPLETED') {
                 messages.push(`완료됨: 작업 '${title}'이 완료되었습니다.`);
@@ -97,12 +93,13 @@ export const taskRepository = {
                         break;
                 }
             }
+    
             if (messages.length > 0) {
-            members.forEach(member => {
-                notifications.push({ taskId, messages: [`참여자에게 알림 전송: ${messages.join(', ')}`] });
-            });
+                members.forEach(member => {
+                    notifications.push({ taskId, messages: [`참여자에게 알림 전송: ${messages.join(', ')}`] });
+                });
+            }
         }
-    }
     
         return notifications;
     },

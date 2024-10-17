@@ -17,8 +17,8 @@ export const userController = {
     },
     passwordResetLink: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { email, link } = req.body;
-            await userService.passwordResetLink(email, link);
+            const { email } = req.body;
+            await userService.passwordResetLink(email);
             res.status(200).json({ message: `비밀번호 재설정 페이지가 ${email}로 전송되었습니다.` });
         } catch (e) {
             next(e)
@@ -27,9 +27,7 @@ export const userController = {
     passwordReset: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const {email, token, password, confirmPassword} = req.body;
-
-            if(password !== confirmPassword) throw new AppError("패스워드가 일치하지 않습니다", 400);
-            await userService.passwordReset(email, password);
+            await userService.passwordReset(email, token, password, confirmPassword);
             res.status(200).json({message: "패스워드가 변경되었습니다."})
         } catch (e) {
             next(e)
@@ -43,7 +41,7 @@ export const userController = {
     
             res.status(201).send({ message: '회원가입 완료' });
         } catch (e) {
-            return next(e);
+            next(e);
         }
     },
     signIn: async (req: Request, res: Response, next: NextFunction) => {

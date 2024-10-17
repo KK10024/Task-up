@@ -15,7 +15,7 @@ dotenv.config();
 
 const app: Express = express();
 
-//cors 설정 
+//cors 설정
 app.use(
 	cors({
 	  origin: "http://localhost:3000",

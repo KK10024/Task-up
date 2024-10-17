@@ -5,6 +5,7 @@ import { AppError } from '../util/AppError';
 import { AuthenticatedRequest } from '../middleware/auth.token';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import dayjs from 'dayjs';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -61,7 +62,7 @@ export const taskController = {
                 throw new AppError('잘못된 쿼리 형식입니다.', 400);
             }
             //날짜 포맷팅 ex) 2024-10-12 => 2024-10-12T00:00:00변환
-            new Date(`${calenderReqdto.startDate}T00:00:00`); // 시작일 
+            dayjs(`${calenderReqdto.startDate}T00:00:00`); // 시작일 
 
             const result = await taskService.calenderTask(calenderReqdto);
             res.status(200).send({message:"일정 조회", data: result });
@@ -69,20 +70,22 @@ export const taskController = {
             next(e);
         }
     },
-    updateTask: async (req: Request, res: Response, next: NextFunction) => {
+    updateTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const {taskId} = req.params;
+            const userId = req.user?.id;
             const taskupdateDTO: taskUpdateDTO = req.body;
-            const result = await taskService.updateTask(Number(taskId), taskupdateDTO);
+            const result = await taskService.updateTask(Number(taskId), userId, taskupdateDTO);
             res.status(200).send({message:"수정 완료", data: result});
         } catch (e) {
             next(e);
         }
     },
-    deleteTask: async (req: Request, res: Response, next: NextFunction) => {
+    deleteTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
             const {taskId} = req.params;
-            await taskService.deleteTask(Number(taskId));
+            const userId = req.user?.id;
+            await taskService.deleteTask(Number(taskId), userId);
             res.status(200).send({message:"삭제완료"})
         } catch (e) {
             next(e);

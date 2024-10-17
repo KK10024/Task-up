@@ -12,8 +12,8 @@ router.get('/calender', taskController.calenderTask);
 // 단건 프로젝트 조회
 router.get('/:taskId', taskController.readOneTask); 
 // 프로젝트 수정
-router.patch('/:taskId', taskController.updateTask); 
+router.patch('/:taskId', authenticateToken, taskController.updateTask); 
  // 프로젝트 삭제
-router.delete('/:taskId', taskController.deleteTask);
+router.delete('/:taskId', authenticateToken, taskController.deleteTask);
 
 export const taskRouter = router;

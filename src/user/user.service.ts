@@ -45,7 +45,7 @@ export const userService = {
         const expiresAt = dayjs().add(10, 'minute').toDate().valueOf();
 
         resetPwData[email] = { resetToken: resetToken, expiresAt};
-        const resetLink = `http://localhost:3000?token=${resetToken}&email=${email}`;
+        const resetLink = `http://localhost:3000/password-reset/confirm?token=${resetToken}&email=${email}`;
         const htmlLink = `<p><a href="${resetLink}">비밀번호 재설정 링크</a></p>`;
 
         await sendMail(email, "비밀번호 재설정 페이지", htmlLink);

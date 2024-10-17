@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
-import { AppError } from '../util/AppError';
+import { AppError, BadReqError } from '../util/AppError';
 import { generateToken } from '../util/jwt';
 import { userRepository } from '../repository/user.repository';
 import { sendMail } from '../util/mailer'; // 이메일 전송 함수
@@ -8,19 +8,22 @@ import { ImgRepository } from '../repository/img.repository';
 import { Iimg } from '../dto/img.dto';
 import { ImgType } from '../entity/img.types';
 import { Image } from 'src/entity/img.entity';
+import dayjs from 'dayjs';
+import crypto from 'crypto';
 
 
-// 스토리지에 저장 함 새로고침 시 날라가버림 방법 찾아야함
-const verificationCodeStorage: { [email: string]: { code: string, expiresAt: number } } = {};
+const verificationData: { [email: string]: { code: string, expiresAt: number } } = {};
+
+const resetPwData: { [email: string]: { resetToken: string, expiresAt: number } } = {};
 
 export const userService = {
     verificationCode: async(email: string) => {
         // 이메일코드 재발송 방지
         const emailChk = await userRepository.findUserByEmail(email);
-        if (emailChk) throw new AppError("이미 존재하는 이메일입니다.", 400);
+        if (emailChk) throw new BadReqError("이미 존재하는 이메일입니다.");
         
-        if (verificationCodeStorage[email]) {
-            const storedData = verificationCodeStorage[email];
+        if (verificationData[email]) {
+            const storedData = verificationData[email];
             if (storedData.expiresAt > Date.now()) {
                 throw new AppError("이미 인증코드가 발송되었습니다", 400);
             }
@@ -29,26 +32,48 @@ export const userService = {
         // 5분 유효
         const expiresAt = Date.now() + 5 * 60 * 1000;
 
-        verificationCodeStorage[email] = { code: verificationCode, expiresAt };
+        verificationData[email] = { code: verificationCode, expiresAt };
 
         await sendMail(email, '이메일 인증 코드입니다.', `인증코드: ${verificationCode}`);
         return email;
     },
-    passwordResetLink: async(email: string, link: string) => {
-        const user = await userRepository.findUserByEmail(email);
-        if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
-        const htmlLink = `<p><a href="${link}">비밀번호 재설정 링크</a></p>`;
-        await sendMail(email, "비밀번호 재설정 페이지", htmlLink);
-        return email;
-    },
-    passwordReset: async(email: string, password: string) =>{
+    passwordResetLink: async(email: string) => {
         const user = await userRepository.findUserByEmail(email);
         if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
 
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const expiresAt = dayjs().add(10, 'minute').toDate().valueOf();
+
+        resetPwData[email] = { resetToken: resetToken, expiresAt};
+        const resetLink = `http://localhost:3000?token=${resetToken}&email=${email}`;
+        const htmlLink = `<p><a href="${resetLink}">비밀번호 재설정 링크</a></p>`;
+
+        await sendMail(email, "비밀번호 재설정 페이지", htmlLink);
+        return email;
+    },
+    passwordReset: async(email: string, token: string, password: string, confirmPassword: string) =>{
+        if(password !== confirmPassword) throw new AppError("패스워드가 일치하지 않습니다", 400);
+
+        const user = await userRepository.findUserByEmail(email);
+        if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
+
+        const resetData = resetPwData[email];
+        
+        if (!resetData || resetData.expiresAt < Date.now()) {
+            throw new AppError("인증 토큰이 만료되었거나 유효하지 않습니다.", 400);
+        }
+
+        if (resetData.resetToken !== token) {
+            throw new AppError("유효한 토큰이 아닙니다.", 400);
+        }
+        
         const hashedPassword = await bcrypt.hash(password, 10);
         user.password = hashedPassword;
-        
+    
         await userRepository.updateUser(user);
+
+        delete resetPwData[email];
+
         return;
     },
     signUp: async (createUserDto: CreateUserDto, code: string) => {
@@ -57,7 +82,7 @@ export const userService = {
         if (!name || !email || !password) {
             throw new AppError('입력값 에러: 모든 필드는 필수입니다.', 400);
         }
-        const storedData = verificationCodeStorage[createUserDto.email];
+        const storedData = verificationData[createUserDto.email];
             
         if (!storedData || storedData.expiresAt < Date.now()) {
             throw new AppError("인증 코드가 만료되었거나 유효하지 않습니다.", 400);
@@ -67,7 +92,7 @@ export const userService = {
             throw new AppError("유효한 코드를 입력해주세요.", 400);
         }
 
-        delete verificationCodeStorage[createUserDto.email];
+        delete verificationData[createUserDto.email];
 
         // 비밀번호 해싱
         const hashedPassword = await bcrypt.hash(password, 10);

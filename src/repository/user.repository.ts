@@ -14,6 +14,7 @@ export const userRepository = {
         if (!user) {
             throw new NotFoundError(`사용자를 찾을 수 없습니다: ${username}`);
         }
+        console.log(user)
         return {uuid: user.uuid, name: user.name};
     },
     getUserByUuid : async (uuid: string) => {

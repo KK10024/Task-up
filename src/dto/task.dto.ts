@@ -1,6 +1,7 @@
 import { KoreanTime } from '../util/DateUtil';
 import { TaskStatus } from '../entity/task.status';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class TaskDTO {
     title: string;
@@ -52,10 +53,11 @@ export class taskUpdateDTO {
     subTitle?: string;
     content?: string;
     status?: TaskStatus;
-    members?: {
-        uuid: string; 
-        name: string;
-    }[];
+    // members?: {
+    //     uuid: string; 
+    //     name: string;
+    // }[];
+    members:string[];
     startDate?: Date;
     endDate?: Date;
 
@@ -76,17 +78,20 @@ export class taskUpdateDTO {
     }
 }
 export class TaskQueryDTO {
+    @Type(() => Number)
     @IsNumber()
     @IsOptional()
-    page?: number;
+    page?: number = 1;
     
+    @Type(() => Number)
     @IsNumber()
     @IsOptional()
-    pageSize?: number;
+    pageSize?: number = 10;
 
+    @Type(() => String)
     @IsString()
     @IsOptional()
-    status?: string;
+    status?: string = TaskStatus.IN_PROGRESS;
 }
 
 export class TaskResponseDTO {
@@ -113,13 +118,22 @@ export class TaskResponseDTO {
     }
 }
 
-export class calenderReqDTO{
-    @IsString()
-    startDate: string;
-    @IsString()
-    type: string;
-}
+export class CalenderReqDTO {
+    @Type(() => String)
+    @IsOptional()
+    @IsString({ message: '쿼리 타입 에러' })
+    startDate?: string;
 
+    @Type(() => String)
+    @IsOptional()
+    @IsString({ message: '쿼리 타입 에러' })
+    type?: string;
+}
+export class TaskParamsDTO {
+    @Type(() => Number)
+    @IsNumber()
+    taskId: number;
+}
 export class CalenderResDTO{
     id: number;
     title: string;

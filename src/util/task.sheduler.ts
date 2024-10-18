@@ -3,25 +3,15 @@ import { taskRepository } from '../repository/task.repository';
 import { sendToClients } from '../middleware/sseHandler';
 
 export const scheduleNotifications = () => {
-    // */1 * * * * 매 1분마다 실행 1 * * * * 매 시간 1분마다 실행 
     cron.schedule('*/1 * * * *', async () => {
         try {
             const notifications = await taskRepository.getTasksDue();
 
             for (const notification of notifications) {
-                const { taskId, messages } = notification;
-            
-                const task = await taskRepository.findTaskWithMembers(taskId);
-                if (!task) continue;
-            
-                const { user, members } = task;
-            
+                const { taskId, messages, user } = notification;
+
                 for (const message of messages) {
-                    sendToClients(JSON.stringify({ userId: user.uuid, message }));
-            
-                    for (const member of members) {
-                        sendToClients(JSON.stringify({ userId: member.uuid, message }));
-                    }
+                    sendToClients(JSON.stringify({ taskId: taskId, userId: user.uuid, message }));
                 }
             }
         } catch (e) {
@@ -30,4 +20,3 @@ export const scheduleNotifications = () => {
         }
     });
 };
-

@@ -39,13 +39,7 @@ export const taskRepository = {
           .select(['task', 'user.name'])
           .getMany();
     },
-    findTaskWithMembers: async(taskId: number): Promise<Task | null> => {
-        return await repository.createQueryBuilder('task')
-            .leftJoinAndSelect('task.user', 'user')
-            .where('task.id = :taskId', { taskId })
-            .getOne();
-    },
-    getTasksDue: async (): Promise<{ taskId: number; messages: string[]; }[]> => {
+    getTasksDue: async (): Promise<{ taskId: number; messages: string[]; user: any; }[]> => {
         const today = dayjs();
         
         const deadlines = [1, 3, 7].map(days => today.add(days, 'day'));
@@ -55,24 +49,21 @@ export const taskRepository = {
         };
     
         const formattedDeadlines = deadlines.map(formatDate);
-    
+        
         // 작업 조회
         const tasks = await repository
             .createQueryBuilder('task')
             .leftJoinAndSelect('task.user', 'user')
             .where('task.taskSchedule = :taskSchedule', { taskSchedule: true })
             .andWhere(
-                '((task.endDate IN (:...dates) AND task.updatedAt <= task.endDate))',
+                '((task.endDate IN (:...dates)))',
                 { dates: formattedDeadlines }
             )
             .getMany();
-        const notifications: { taskId: number; messages: string[]; }[] = [];
-    
+            const notifications: { taskId: number; messages: string[]; user: { uuid: string, name: string }; }[] = [];
         for (const task of tasks) {
-            const { id: taskId, title, endDate, status, members } = task;
+            const { id: taskId, title, endDate, status, members, user } = task;
             const messages: string[] = [];
-    
-            // 남은 기간 알림 생성
             const remainingDays = dayjs(endDate).diff(today, 'day') +1;
             const formattedEndDate = dayjs(endDate).format('YYYY.MM.DD:00:00:00');
             if (status === 'COMPLETED') {
@@ -91,14 +82,21 @@ export const taskRepository = {
                         break;
                 }
             }
-    
-            if (messages.length > 0) {
-                members.forEach(member => {
-                    notifications.push({ taskId, messages: [`참여자에게 알림 전송: ${messages.join(', ')}`] });
-                });
-            }
+            notifications.push({
+                taskId,
+                messages: [`작성자 ${user.name}에게 알림 전송 : ${messages.join(', ')}`],
+                user: { uuid: user.uuid, name: user.name }
+            });
+            members.forEach(member => {
+                if (member.uuid !== user.uuid) {
+                    notifications.push({
+                        taskId,
+                        messages: [`참여자 ${member.name}에게 알림 전송: ${messages.join(', ')}`],
+                        user: { uuid: member.uuid, name: member.name }
+                    });
+                }
+            });
         }
-    
         return notifications;
     },
     updateTask: async (task: Task) => {

@@ -20,8 +20,9 @@ app.use(
 	cors({
 	  origin: "http://localhost:3000",
 	  credentials: true
-        }),
-       );
+    }),
+   );
+
 
 // 알림 스케쥴러 등록
 scheduleNotifications();

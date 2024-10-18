@@ -1,4 +1,4 @@
-import { AppError } from "./AppError";
+import { AppError, BadReqError } from "./AppError";
 import  dayjs  from "dayjs";
 
 export function KoreanTime(dateString: string | Date): Date {
@@ -13,7 +13,7 @@ export function KoreanTime(dateString: string | Date): Date {
 
 
 export const calendarUtil = (startDate: string, type: string) => {
-  const startDateKST = dayjs(startDate).add(9, 'hour'); 
+  const startDateKST = dayjs(startDate).add(9, 'hour');
   let start: string, end: string;
 
   switch (type) {
@@ -33,7 +33,7 @@ export const calendarUtil = (startDate: string, type: string) => {
           break;
 
       default:
-          throw new AppError('잘못된 타입입니다: day, week, month', 400);
+          throw new BadReqError('잘못된 타입입니다: day, week, month');
   }
 
   return { start, end };

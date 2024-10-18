@@ -1,6 +1,7 @@
 import { KoreanTime } from '../util/DateUtil';
 import { TaskStatus } from '../entity/task.status';
-import { IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class TaskDTO {
     title: string;
@@ -14,11 +15,24 @@ export class TaskDTO {
 }
 export class createTaskDTO extends TaskDTO { 
     @IsString()
+    @IsNotEmpty({message: "제목은 필수입니다."})
     title:string;
+
     @IsString()
+    @IsNotEmpty({message: "서브 제목은 필수입니다."})
     subTitle: string;
+
     @IsString()
+    @IsNotEmpty({message: "내용은 필수입니다."})
     content: string;
+
+    @IsString()
+    @IsNotEmpty({message: "시작일은 필수입니다."})
+    startDate: Date;
+
+    @IsString()
+    @IsNotEmpty({message: "종료일은 필수입니다."})
+    endDate: Date;
 }
 export interface ITask {
     title: string;
@@ -39,10 +53,7 @@ export class taskUpdateDTO {
     subTitle?: string;
     content?: string;
     status?: TaskStatus;
-    members?: {
-        uuid: string; 
-        name: string;
-    }[];
+    members:string[];
     startDate?: Date;
     endDate?: Date;
 
@@ -62,7 +73,22 @@ export class taskUpdateDTO {
         this.endDate = data.endDate;
     }
 }
+export class TaskQueryDTO {
+    @Type(() => Number)
+    @IsNumber()
+    @IsOptional()
+    page?: number = 1;
+    
+    @Type(() => Number)
+    @IsNumber()
+    @IsOptional()
+    pageSize?: number = 10;
 
+    @Type(() => String)
+    @IsString()
+    @IsOptional()
+    status?: string = TaskStatus.IN_PROGRESS;
+}
 
 export class TaskResponseDTO {
     id: number;
@@ -88,24 +114,22 @@ export class TaskResponseDTO {
     }
 }
 
-// uuid만 받을 경우 이름 검색
-// export const createTaskResponse = async(task: any, userRepository: any) => {
-//     const members = await Promise.all(
-//         task.members.map(async (member: { uuid: string }) => {
-//             const user = await userRepository.getUserByUuid(member.uuid);
-//             return { name: user.name };
-//         })
-//     );
-//     const author = { name: task.user.name };
-//     return new TaskResponseDTO(task, members, author);
-// }
-export class calenderReqDTO{
-    @IsString({ message: 'startDate는 문자열이어야 합니다.' })
-    startDate: string;
-    @IsString({ message: 'type는 문자열이어야 합니다.' })
-    type: string;
-}
+export class CalenderReqDTO {
+    @Type(() => String)
+    @IsOptional()
+    @IsString({ message: '쿼리 타입 에러' })
+    startDate?: string;
 
+    @Type(() => String)
+    @IsOptional()
+    @IsString({ message: '쿼리 타입 에러' })
+    type?: string;
+}
+export class TaskParamsDTO {
+    @Type(() => Number)
+    @IsNumber()
+    taskId: number;
+}
 export class CalenderResDTO{
     id: number;
     title: string;

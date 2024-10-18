@@ -10,7 +10,7 @@ router.post('/', authenticateToken, validateDto(createTaskDTO), taskController.c
 // 전체 프로젝트 조회
 router.get('/' , authenticateToken, validateDto(TaskQueryDTO),taskController.readTask);
 //캘린더 일정 조회
-router.get('/calender', taskController.calenderTask);
+router.get('/calender',authenticateToken, taskController.calenderTask);
 // 단건 프로젝트 조회
 router.get('/:taskId', taskController.readOneTask); 
 // 프로젝트 수정

@@ -13,6 +13,6 @@ export const validateDto = (dtoClass: any) => {
             const error = new BadReqError(`Validation Error: ${errorMessages.join(', ')}`);
             return next(error);
           }
-        next(); // 유효성 검사 통과 시 다음 미들웨어로 이동
+        next();
     };
 };

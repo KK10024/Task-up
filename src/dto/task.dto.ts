@@ -1,6 +1,6 @@
 import { KoreanTime } from '../util/DateUtil';
 import { TaskStatus } from '../entity/task.status';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class TaskDTO {
     title: string;
@@ -14,11 +14,24 @@ export class TaskDTO {
 }
 export class createTaskDTO extends TaskDTO { 
     @IsString()
+    @IsNotEmpty({message: "제목은 필수입니다."})
     title:string;
+
     @IsString()
+    @IsNotEmpty({message: "서브 제목은 필수입니다."})
     subTitle: string;
+
     @IsString()
+    @IsNotEmpty({message: "내용은 필수입니다."})
     content: string;
+
+    @IsString()
+    @IsNotEmpty({message: "시작일은 필수입니다."})
+    startDate: Date;
+
+    @IsString()
+    @IsNotEmpty({message: "종료일은 필수입니다."})
+    endDate: Date;
 }
 export interface ITask {
     title: string;

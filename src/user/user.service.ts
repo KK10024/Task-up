@@ -78,10 +78,6 @@ export const userService = {
     },
     signUp: async (createUserDto: CreateUserDto, code: string) => {
         const { name, email, password } = createUserDto;
-
-        if (!name || !email || !password) {
-            throw new BadReqError('입력값 에러: 모든 필드는 필수입니다.');
-        }
         const storedData = verificationData[createUserDto.email];
             
         if (!storedData || storedData.expiresAt < Date.now()) {
@@ -109,10 +105,6 @@ export const userService = {
 
     signIn: async (loginDto: LoginUserDto) => {
         const { email, password } = loginDto;
-
-        if (!email || !password) {
-            throw new BadReqError('입력값 에러: 모든 필드는 필수입니다.');
-        }
 
         // 사용자 찾기
         const user = await userRepository.findUserByEmail(email);

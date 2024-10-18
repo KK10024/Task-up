@@ -8,9 +8,6 @@ import dayjs from 'dayjs';
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {
         const { title, subTitle, content, status, members, startDate, endDate, userId } = taskcreateDTO;
-        
-        //dto로 받는데 왜 검증해야함?
-        if (!title || !subTitle  || !content) throw new BadReqError('필수 입력값입니다.');
         if (!userId) throw new BadReqError('작성자는 필수입니다.');
 
         // 이름으로 사용자 검색
@@ -28,7 +25,7 @@ export const taskService = {
             endDate,
             user: { uuid: userId }
         };
-        const result = await taskRepository.createTask(newTask);
+        await taskRepository.createTask(newTask);
         return ;
     },
 

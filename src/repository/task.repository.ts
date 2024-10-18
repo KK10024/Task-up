@@ -49,7 +49,7 @@ export const taskRepository = {
         };
     
         const formattedDeadlines = deadlines.map(formatDate);
-        console.log(formattedDeadlines);
+        
         // 작업 조회
         const tasks = await repository
             .createQueryBuilder('task')
@@ -61,12 +61,9 @@ export const taskRepository = {
             )
             .getMany();
             const notifications: { taskId: number; messages: string[]; user: { uuid: string, name: string }; }[] = [];
-            // console.log(tasks);
         for (const task of tasks) {
             const { id: taskId, title, endDate, status, members, user } = task;
             const messages: string[] = [];
-            console.log(task);
-            // 남은 기간 알림 생성
             const remainingDays = dayjs(endDate).diff(today, 'day') +1;
             const formattedEndDate = dayjs(endDate).format('YYYY.MM.DD:00:00:00');
             if (status === 'COMPLETED') {

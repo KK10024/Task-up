@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
-import { AppError, BadReqError } from '../util/AppError';
+import { AppError, BadReqError, NotFoundError } from '../util/AppError';
 import { generateToken } from '../util/jwt';
 import { userRepository } from '../repository/user.repository';
 import { sendMail } from '../util/mailer'; // 이메일 전송 함수
@@ -25,7 +25,7 @@ export const userService = {
         if (verificationData[email]) {
             const storedData = verificationData[email];
             if (storedData.expiresAt > Date.now()) {
-                throw new AppError("이미 인증코드가 발송되었습니다", 400);
+                throw new BadReqError("이미 인증코드가 발송되었습니다");
             }
         }
         const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -39,7 +39,7 @@ export const userService = {
     },
     passwordResetLink: async(email: string) => {
         const user = await userRepository.findUserByEmail(email);
-        if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
+        if(!user) throw new BadReqError("이메일이 존재하지않습니다.");
 
         const resetToken = crypto.randomBytes(32).toString('hex');
         const expiresAt = dayjs().add(10, 'minute').toDate().valueOf();
@@ -52,19 +52,19 @@ export const userService = {
         return email;
     },
     passwordReset: async(email: string, token: string, password: string, confirmPassword: string) =>{
-        if(password !== confirmPassword) throw new AppError("패스워드가 일치하지 않습니다", 400);
+        if(password !== confirmPassword) throw new BadReqError("패스워드가 일치하지 않습니다");
 
         const user = await userRepository.findUserByEmail(email);
-        if(!user) throw new AppError("이메일이 존재하지않습니다.", 400);
+        if(!user) throw new NotFoundError("이메일이 존재하지않습니다.");
 
         const resetData = resetPwData[email];
         
         if (!resetData || resetData.expiresAt < Date.now()) {
-            throw new AppError("인증 토큰이 만료되었거나 유효하지 않습니다.", 400);
+            throw new BadReqError("인증 토큰이 만료되었거나 유효하지 않습니다.");
         }
 
         if (resetData.resetToken !== token) {
-            throw new AppError("유효한 토큰이 아닙니다.", 400);
+            throw new BadReqError("유효한 토큰이 아닙니다.");
         }
         
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -80,16 +80,16 @@ export const userService = {
         const { name, email, password } = createUserDto;
 
         if (!name || !email || !password) {
-            throw new AppError('입력값 에러: 모든 필드는 필수입니다.', 400);
+            throw new BadReqError('입력값 에러: 모든 필드는 필수입니다.');
         }
         const storedData = verificationData[createUserDto.email];
             
         if (!storedData || storedData.expiresAt < Date.now()) {
-            throw new AppError("인증 코드가 만료되었거나 유효하지 않습니다.", 400);
+            throw new BadReqError("인증 코드가 만료되었거나 유효하지 않습니다.");
         }
 
         if (storedData.code !== code) {
-            throw new AppError("유효한 코드를 입력해주세요.", 400);
+            throw new BadReqError("유효한 코드를 입력해주세요.");
         }
 
         delete verificationData[createUserDto.email];
@@ -111,38 +111,38 @@ export const userService = {
         const { email, password } = loginDto;
 
         if (!email || !password) {
-            throw new AppError('입력값 에러: 모든 필드는 필수입니다.', 400);
+            throw new BadReqError('입력값 에러: 모든 필드는 필수입니다.');
         }
 
         // 사용자 찾기
         const user = await userRepository.findUserByEmail(email);
         if (!user) {
-            throw new AppError('사용자를 찾을 수 없습니다', 400);
+            throw new BadReqError('사용자를 찾을 수 없습니다');
         }
 
         // 비밀번호 확인
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            throw new AppError('잘못된 비밀번호입니다.', 400);
+            throw new BadReqError('잘못된 비밀번호입니다.');
         }
 
         // JWT 생성
         const token = generateToken(user.uuid);
-
-        return { token };
+        // 응답값 수정해야함
+        return { email: user.email, name: user.name, token: token };
     },
     getUserProfile: async(userId: string) =>{
         const user = await userRepository.getUserProfile(userId);
-        const profileImageUrl = user.profileImage.imgAddr.replace(/\\/g, '/');
+        const profileImageUrl = user.profileImage ? user.profileImage.imgAddr.replace(/\\/g, '/') : null;
         return {
             email: user.email,
             name: user.name,
-            profileImage: `${process.env.BASE_URL}/${profileImageUrl}`,
-        };
+            profileImage: profileImageUrl ? `${process.env.BASE_URL}/${profileImageUrl}` : null,
+        }
     },
     updateUser: async(userId: string, imagePath: string, updateUserdto: UpdateUserDto) => {
         const user = await userRepository.findByUser(userId);
-        if(!user) throw new AppError("사용자를 찾을 수 없습니다.", 404);
+        if(!user) throw new NotFoundError("사용자를 찾을 수 없습니다.");
         const newImage: Iimg = {
             type: ImgType.USER,
             imgAddr: imagePath,
@@ -154,6 +154,6 @@ export const userService = {
     },
     deleteUser: async(userId: string) => {
         const user = await userRepository.deleteUser(userId);
-        if (user.affected === 0) throw new AppError('사용자를 찾을 수 없습니다.', 404);
+        if (user.affected === 0) throw new NotFoundError('사용자를 찾을 수 없습니다.');
     },
 };

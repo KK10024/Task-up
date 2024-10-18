@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { AppError } from './AppError';
+import { AppError, BadReqError } from './AppError';
 
 
 const transporter = nodemailer.createTransport({
@@ -21,6 +21,6 @@ const transporter = nodemailer.createTransport({
       // 메일 전송
       await transporter.sendMail(mailOptions);
     } catch (e) {
-      throw new AppError("이메일 전송 오류", 400);
+      throw new BadReqError("이메일 전송 오류");
     }
 };

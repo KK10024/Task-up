@@ -1,6 +1,6 @@
 import { KoreanTime } from '../util/DateUtil';
 import { TaskStatus } from '../entity/task.status';
-import { IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class TaskDTO {
     title: string;
@@ -62,7 +62,19 @@ export class taskUpdateDTO {
         this.endDate = data.endDate;
     }
 }
+export class TaskQueryDTO {
+    @IsNumber()
+    @IsOptional()
+    page?: number;
+    
+    @IsNumber()
+    @IsOptional()
+    pageSize?: number;
 
+    @IsString()
+    @IsOptional()
+    status?: string;
+}
 
 export class TaskResponseDTO {
     id: number;
@@ -88,21 +100,10 @@ export class TaskResponseDTO {
     }
 }
 
-// uuid만 받을 경우 이름 검색
-// export const createTaskResponse = async(task: any, userRepository: any) => {
-//     const members = await Promise.all(
-//         task.members.map(async (member: { uuid: string }) => {
-//             const user = await userRepository.getUserByUuid(member.uuid);
-//             return { name: user.name };
-//         })
-//     );
-//     const author = { name: task.user.name };
-//     return new TaskResponseDTO(task, members, author);
-// }
 export class calenderReqDTO{
-    @IsString({ message: 'startDate는 문자열이어야 합니다.' })
+    @IsString()
     startDate: string;
-    @IsString({ message: 'type는 문자열이어야 합니다.' })
+    @IsString()
     type: string;
 }
 

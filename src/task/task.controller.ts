@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
-import { createTaskDTO, taskUpdateDTO, calenderReqDTO } from '../dto/task.dto';
-import { AppError } from '../util/AppError';
+import { createTaskDTO, taskUpdateDTO, calenderReqDTO, TaskQueryDTO } from '../dto/task.dto';
+import { AppError, BadReqError } from '../util/AppError';
 import { AuthenticatedRequest } from '../middleware/auth.token';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import dayjs from 'dayjs';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -15,7 +14,7 @@ export const taskController = {
             taskCreateDTO.userId = userId;
             const errors = await validate(taskCreateDTO);
             if (errors.length > 0) {
-                throw new AppError('잘못된 요청 데이터입니다.', 400);
+                throw new BadReqError('잘못된 요청 데이터입니다.');
             }
             const result = await taskService.createTask(taskCreateDTO);
             res.status(201).send({message:"생성 완료", data: result});
@@ -25,19 +24,15 @@ export const taskController = {
     },
     readTask: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const page = Number(req.query.page);
-            const pageSize = Number(req.query.pageSize);
-            const status = req.query.status ? req.query.status as string : undefined;
+            const taskQuery = new TaskQueryDTO();
+            taskQuery.page = Number(req.query.page) || 1;
+            taskQuery.pageSize = Number(req.query.pageSize) || 10;
+            taskQuery.status = req.query.status as string;
 
-            // 페이지와 페이지 크기 유효성 검사
-            if (isNaN(page) || page < 1) {
-                throw new AppError('유효하지 않은 페이지 번호입니다.', 400)
-            }
-            if (isNaN(pageSize) || pageSize < 1) {
-               throw new AppError('유효하지 않은 페이지 크기입니다.', 400)
-            }
-            
-            const result = await taskService.readTask(page, pageSize, status);
+            const errors = await validate(taskQuery);
+            if (errors.length > 0) throw new BadReqError("유효하지않은 요청");
+
+            const result = await taskService.readTask(taskQuery.page, taskQuery.pageSize, taskQuery.status);
             res.status(200).send({ message: "조회 완료", data: result });
         } catch (e) {
             next(e);
@@ -59,11 +54,8 @@ export const taskController = {
             const errors = await validate(calenderReqdto);
     
             if (errors.length > 0) {
-                throw new AppError('잘못된 쿼리 형식입니다.', 400);
+                throw new BadReqError('잘못된 쿼리 형식입니다.');
             }
-            //날짜 포맷팅 ex) 2024-10-12 => 2024-10-12T00:00:00변환
-            dayjs(`${calenderReqdto.startDate}T00:00:00`); // 시작일 
-
             const result = await taskService.calenderTask(calenderReqdto);
             res.status(200).send({message:"일정 조회", data: result });
         } catch (e) {

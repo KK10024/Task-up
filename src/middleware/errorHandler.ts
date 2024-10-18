@@ -5,7 +5,7 @@ export const errorHandler = async (err: any, req: Request, res: Response, next: 
     // AppError 인스턴스일 경우
     if (err instanceof AppError) {
         res.status(err.statusCode).json({
-            status: 'error',
+            status: err.name,
             statusCode: err.statusCode,
             message: err.message,
         });

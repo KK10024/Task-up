@@ -1,7 +1,7 @@
 // User 엔티티 import
 import { User } from '../entity/user.entity'; 
 import { AppDataSource } from '../config/db';
-import { AppError } from '../util/AppError';
+import { AppError, NotFoundError } from '../util/AppError';
 
 const repository = AppDataSource.getRepository(User);
 
@@ -12,7 +12,7 @@ export const userRepository = {
             where: { name: username }
         });
         if (!user) {
-            throw new AppError(`사용자를 찾을 수 없습니다: ${username}`, 404);
+            throw new NotFoundError(`사용자를 찾을 수 없습니다: ${username}`);
         }
         return {uuid: user.uuid, name: user.name};
     },

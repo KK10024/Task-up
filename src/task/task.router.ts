@@ -2,7 +2,7 @@ import { Router } from "express";
 import { taskController } from "./task.controller";
 import { authenticateToken } from '../middleware/auth.token';
 import { validateDto } from "../middleware/validation.middleware";
-import { CalenderReqDTO, createTaskDTO, TaskParamsDTO, TaskQueryDTO } from "../dto/task.dto";
+import {createTaskDTO, TaskQueryDTO } from "../dto/task.dto";
 const router = Router();
 
 // 프로젝트 생성

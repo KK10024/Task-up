@@ -53,10 +53,6 @@ export class taskUpdateDTO {
     subTitle?: string;
     content?: string;
     status?: TaskStatus;
-    // members?: {
-    //     uuid: string; 
-    //     name: string;
-    // }[];
     members:string[];
     startDate?: Date;
     endDate?: Date;

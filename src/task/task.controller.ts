@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import {taskService} from './task.service';
 import { createTaskDTO, taskUpdateDTO, CalenderReqDTO, TaskQueryDTO, TaskParamsDTO } from '../dto/task.dto';
-import { AppError, BadReqError } from '../util/AppError';
 import { AuthenticatedRequest } from '../middleware/auth.token';
 import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
 
 export const taskController = {
     createTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {

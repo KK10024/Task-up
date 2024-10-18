@@ -24,8 +24,6 @@ export const taskRepository = {
             skip: (page - 1) * pageSize,
             take: pageSize,
         });
-    
-        console.log(tasks);
         return { tasks, total };
     },
 

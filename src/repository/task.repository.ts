@@ -36,10 +36,12 @@ export const taskRepository = {
             relations: ['user'],
         });
     },
-    findTaskByCalender : async (clenderDate : any): Promise<Task[]> => {
+    findTaskByCalender : async (clenderDate : any, userId: string): Promise<Task[]> => {
         return await repository
           .createQueryBuilder('task')
           .leftJoinAndSelect('task.user', 'user')
+          .where('user.uuid = :userId', { userId })
+          .orWhere('JSON_SEARCH(task.members, "one", :uuid, NULL, "$[*].uuid") IS NOT NULL', { uuid: userId })
           .where('task.startDate >= :start', { start: clenderDate.start })
           .andWhere('task.startDate <= :end', { end: clenderDate.end })
           .select(['task', 'user.name'])

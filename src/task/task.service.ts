@@ -56,12 +56,12 @@ export const taskService = {
         return new TaskResponseDTO(task);
     },
 
-    calenderTask: async (calenderReqdto: CalenderReqDTO) => {
+    calenderTask: async (calenderReqdto: CalenderReqDTO, userId: string) => {
         const { startDate, type } = calenderReqdto;
 
         const clenderDate = calendarUtil(startDate, type);
-        const calender = await taskRepository.findTaskByCalender(clenderDate);
-        
+        const calender = await taskRepository.findTaskByCalender(clenderDate, userId);
+        console.log(calender);
         if(!calender) throw new NotFoundError('프로젝트를 찾을 수 없습니다.');
 
         const result = calender.map(calender => new CalenderResDTO(calender))

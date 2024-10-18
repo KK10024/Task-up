@@ -35,10 +35,11 @@ export const taskController = {
             next(e);
         }
     },
-    calenderTask: async (req: Request, res: Response, next: NextFunction) => {
+    calenderTask: async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
+            const userId = req.user?.id;
             const calenderReqdto = plainToInstance(CalenderReqDTO, req.query);
-            const result = await taskService.calenderTask(calenderReqdto);
+            const result = await taskService.calenderTask(calenderReqdto, userId);
             res.status(200).send({message:"일정 조회", data: result });
         } catch (e) {
             next(e);

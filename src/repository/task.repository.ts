@@ -13,14 +13,19 @@ export const taskRepository = {
         return await repository.save(task);
     },
 
-    findTasksWithPagination: async (page: number, pageSize: number, status?: string) => {
+    findTasksWithPagination: async (page: number, pageSize: number, userId: string, status?: string) => {
         const statusCheck: FindOptionsWhere<Task> = status ? { status: status as TaskStatus } : {};
         const [tasks, total] = await repository.findAndCount({
-            where: statusCheck,
+            where: {
+                ...statusCheck,
+                user: { uuid: userId } 
+            },
             relations: ['user'],
             skip: (page - 1) * pageSize,
             take: pageSize,
         });
+    
+        console.log(tasks);
         return { tasks, total };
     },
 

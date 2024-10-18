@@ -39,9 +39,9 @@ export const taskService = {
         return ;
     },
 
-    readTask: async (taskQuery : TaskQueryDTO) => {
+    readTask: async (taskQuery : TaskQueryDTO, userId: string) => {
         const { page, pageSize, status} = taskQuery;
-        const { tasks, total } = await taskRepository.findTasksWithPagination(page, pageSize, status);
+        const { tasks, total } = await taskRepository.findTasksWithPagination(page, pageSize, userId, status );
         return {
             total,
             page,

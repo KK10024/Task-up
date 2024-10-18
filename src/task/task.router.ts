@@ -8,7 +8,7 @@ const router = Router();
 // 프로젝트 생성
 router.post('/', authenticateToken, validateDto(createTaskDTO), taskController.createTask);
 // 전체 프로젝트 조회
-router.get('/' , validateDto(TaskQueryDTO),taskController.readTask);
+router.get('/' , authenticateToken, validateDto(TaskQueryDTO),taskController.readTask);
 //캘린더 일정 조회
 router.get('/calender', taskController.calenderTask);
 // 단건 프로젝트 조회

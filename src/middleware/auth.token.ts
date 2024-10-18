@@ -9,7 +9,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const token = req.cookies.token; // 쿠키에서 토큰 추출
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1]; // 쿠키에서 토큰 추출
     if (!token) {
       return next(new UnauthorizedError('토큰이 없습니다. 접근이 거부되었습니다.'));
   }

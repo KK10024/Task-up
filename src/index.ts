@@ -29,7 +29,7 @@ scheduleNotifications();
 app.use(cookieParser());
 
 //이미지 파일
-app.use('/uploads/imgs', express.static(path.join(__dirname, 'uploads', 'imgs')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // 미들웨어 설정
 app.use(express.json());

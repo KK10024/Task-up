@@ -14,16 +14,18 @@ export const taskRepository = {
     findTasksWithPagination: async (page: number, pageSize: number, userId: string, status?: string) => {
         const queryBuilder = repository.createQueryBuilder('task')
             .leftJoinAndSelect('task.user', 'user')
-            .where('user.uuid = :userId', { userId })
-            .skip((page - 1) * pageSize)
-            .take(pageSize);
-            
-        // status가 있는 경우 추가
+            .where('user.uuid = :userId', { userId });
+    
         if (status) {
             queryBuilder.andWhere('task.status = :status', { status });
         }
+    
         queryBuilder.orWhere('JSON_SEARCH(task.members, "one", :uuid, NULL, "$[*].uuid") IS NOT NULL', { uuid: userId });
-
+    
+        queryBuilder.orderBy('task.id', 'DESC')
+            .skip((page - 1) * pageSize)
+            .take(pageSize);
+    
         const [tasks, total] = await queryBuilder.getManyAndCount();
         return { tasks, total };
     },

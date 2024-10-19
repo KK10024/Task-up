@@ -10,10 +10,7 @@ export const userRepository = {
         const user = await repository.findOne({
             where: { name: username }
         });
-        if (!user) {
-            throw new NotFoundError(`사용자를 찾을 수 없습니다: ${username}`);
-        }
-        return {uuid: user.uuid, name: user.name};
+        return user;
     },
     getUserByUuid : async (uuid: string) => {
         const user = await repository.findOne({

@@ -87,7 +87,9 @@ export const userService = {
         if (storedData.code !== code) {
             throw new ForbiddenError("유효한 코드를 입력해주세요.");
         }
-
+        const nameChk = await userRepository.getUserByName(name);
+        if(nameChk) throw new BadReqError("이미 가입된 유저 이름입니다.");
+        
         delete verificationData[createUserDto.email];
 
         // 비밀번호 해싱

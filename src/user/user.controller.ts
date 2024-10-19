@@ -2,7 +2,7 @@ import { userService } from "./user.service";
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth.token';
-import { AppError, BadReqError } from "../util/AppError";
+import { BadReqError } from "../util/AppError";
 
 
 export const userController = {

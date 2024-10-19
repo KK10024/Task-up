@@ -1,8 +1,6 @@
 import { ITask } from '../dto/task.dto';
 import { AppDataSource } from '../config/db';
 import { Task } from '../entity/task.entity';
-import { TaskStatus } from '../entity/task.status';
-import { FindOptionsWhere } from 'typeorm';
 import dayjs from 'dayjs';
 
 const repository = AppDataSource.getRepository(Task);

@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from '../dto/user.dto';
-import { AppError, BadReqError, NotFoundError } from '../util/AppError';
+import { BadReqError, ForbiddenError, NotFoundError, UnauthorizedError } from '../util/AppError';
 import { generateToken } from '../util/jwt';
 import { userRepository } from '../repository/user.repository';
-import { sendMail } from '../util/mailer'; // 이메일 전송 함수
+import { sendMail } from '../util/mailer';
 import { ImgRepository } from '../repository/img.repository';
 import { Iimg } from '../dto/img.dto';
 import { ImgType } from '../entity/img.types';
@@ -45,7 +45,7 @@ export const userService = {
         const expiresAt = dayjs().add(10, 'minute').toDate().valueOf();
 
         resetPwData[email] = { resetToken: resetToken, expiresAt};
-        const resetLink = `http://localhost:3000/password-reset/confirm?token=${resetToken}&email=${email}`;
+        const resetLink = `kdt-react-node-1-team03.elicecoding.com/password-reset/confirm?token=${resetToken}&email=${email}`;
         const htmlLink = `<p><a href="${resetLink}">비밀번호 재설정 링크</a></p>`;
 
         await sendMail(email, "비밀번호 재설정 페이지", htmlLink);
@@ -81,11 +81,11 @@ export const userService = {
         const storedData = verificationData[createUserDto.email];
             
         if (!storedData || storedData.expiresAt < Date.now()) {
-            throw new BadReqError("인증 코드가 만료되었거나 유효하지 않습니다.");
+            throw new UnauthorizedError("인증 코드가 만료되었거나 유효하지 않습니다.");
         }
 
         if (storedData.code !== code) {
-            throw new BadReqError("유효한 코드를 입력해주세요.");
+            throw new ForbiddenError("유효한 코드를 입력해주세요.");
         }
 
         delete verificationData[createUserDto.email];
@@ -109,7 +109,7 @@ export const userService = {
         // 사용자 찾기
         const user = await userRepository.findUserByEmail(email);
         if (!user) {
-            throw new BadReqError('사용자를 찾을 수 없습니다');
+            throw new NotFoundError('사용자를 찾을 수 없습니다');
         }
 
         // 비밀번호 확인

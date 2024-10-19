@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../util/jwt';  // 기존 JWT 유틸리티 파일
-import { AppError, UnauthorizedError } from '../util/AppError';
+import { verifyToken } from '../util/jwt';
+import { UnauthorizedError } from '../util/AppError';
 
 export interface AuthenticatedRequest extends Request {
     user?: {

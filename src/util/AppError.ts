@@ -4,6 +4,7 @@ const errorName = {
     unauthorized: "Unauthorized",
     Forbidden: "Forbidden",
     internal: "Internal Server Error",
+    badGateway: "Bad Gateway",
 } 
 
 export class AppError extends Error {
@@ -42,6 +43,10 @@ export class ForbiddenError extends AppError {
 }
 export class InternalServerError extends AppError {
     constructor(message: string, name = errorName.internal, statusCode: number = 500) {
+        super(message, name, statusCode);
+    }
+}export class BadGateway extends AppError {
+    constructor(message: string, name = errorName.badGateway, statusCode: number = 502) {
         super(message, name, statusCode);
     }
 }

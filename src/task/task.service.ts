@@ -1,9 +1,8 @@
 import { taskRepository } from '../repository/task.repository';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO, CalenderReqDTO, TaskQueryDTO} from '../dto/task.dto';
-import { AppError, BadReqError, ForbiddenError, NotFoundError } from '../util/AppError';
+import { BadReqError, ForbiddenError, NotFoundError } from '../util/AppError';
 import { userRepository } from '../repository/user.repository';
 import { calendarUtil } from '../util/DateUtil';
-import dayjs from 'dayjs';
 
 export const taskService = {
     createTask: async(taskcreateDTO: createTaskDTO) => {

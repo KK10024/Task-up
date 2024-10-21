@@ -135,13 +135,11 @@ export class CalenderResDTO{
     title: string;
     name: string;
     startDate: Date;
-    members: string[];
     endDate: Date;
     constructor(calender: any){
         this.id = calender.id;
         this.title = calender.title;
         this.name = calender.user.name;
-        this.members = calender.members.map(member => member.name);
         this.startDate = KoreanTime(calender.startDate);
         this.endDate = KoreanTime(calender.endDate);
     }

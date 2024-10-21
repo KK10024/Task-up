@@ -20,4 +20,5 @@ router.get('/profile', authenticateToken, userController.getUserProfile)
 router.patch('/profile', authenticateToken, upload.single('profileImage'), userController.updateUser);
 router.delete('/profile', authenticateToken, userController.deleteUser);
 
+router.post('/logout', userController.logout)
 export const userRouter = router;

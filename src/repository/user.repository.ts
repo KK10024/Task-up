@@ -1,7 +1,5 @@
-// User 엔티티 import
 import { User } from '../entity/user.entity'; 
 import { AppDataSource } from '../config/db';
-import { NotFoundError } from '../util/AppError';
 
 const repository = AppDataSource.getRepository(User);
 

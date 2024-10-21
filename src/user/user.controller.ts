@@ -89,13 +89,5 @@ export const userController = {
         } catch (e) {
             next(e);
         }
-    },
-    logout:  async(req: Request, res: Response, next: NextFunction) => {
-        try {
-            res.clearCookie('token', { httpOnly: true}); 
-            res.status(200).send({massage:"로그아웃"})
-        } catch (e) {
-            next(e);
-        }
-    },
+    }
 }

@@ -3,13 +3,14 @@ import cookieParser from 'cookie-parser';
 import { AppDataSource } from './config/db';
 import dotenv from 'dotenv';
 import { userRouter } from './user/user.router'; 
-import { errorHandler } from './middleware/errorHandler';
+import { errorHandler } from './middleware/errorHandler'; // 에러 처리 미들웨어 가져오기
 import { taskRouter } from "./task/task.router";
 import { scheduleNotifications } from './util/task.sheduler';
 import { sseHandler } from "./middleware/sseHandler";
 import path from 'path';
 import cors from 'cors';
 
+//.env 파일 불러오기
 dotenv.config();
 
 const app: Express = express();
@@ -29,7 +30,7 @@ scheduleNotifications();
 app.use(cookieParser());
 
 //이미지 파일
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads/imgs', express.static(path.join(__dirname, 'uploads', 'imgs')));
 
 // 미들웨어 설정
 app.use(express.json());
@@ -48,7 +49,7 @@ AppDataSource.initialize()
     .then(() => {
         console.log("데이터베이스에 연결되었습니다.");
         // 서버를 실행하는 코드
-        const PORT = process.env.PORT;
+        const PORT = 5000;
         app.listen(PORT, () => {
             console.log(`서버가 ${PORT}에서 실행 중입니다.`);
         });

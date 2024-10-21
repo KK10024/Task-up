@@ -1,33 +1,30 @@
 import { taskRepository } from '../repository/task.repository';
 import { createTaskDTO, taskUpdateDTO , TaskResponseDTO, ITask, CalenderResDTO, CalenderReqDTO, TaskQueryDTO} from '../dto/task.dto';
-import { BadReqError, ForbiddenError, NotFoundError } from '../util/AppError';
+import { AppError, BadReqError, ForbiddenError, NotFoundError } from '../util/AppError';
 import { userRepository } from '../repository/user.repository';
 import { calendarUtil } from '../util/DateUtil';
+import dayjs from 'dayjs';
 
 export const taskService = {
-    createTask: async (taskcreateDTO: createTaskDTO) => {
+    createTask: async(taskcreateDTO: createTaskDTO) => {
         const { title, subTitle, content, status, members, startDate, endDate, userId } = taskcreateDTO;
         if (!userId) throw new BadReqError('작성자는 필수입니다.');
-    
+
         const memberResults = await Promise.all(members.map(userRepository.getUserByName));
-        
+    
         const uniqueMembers = new Set();
         const filteredMembers = [];
     
-        for (let i = 0; i < memberResults.length; i++) {
-            const member = memberResults[i];
-            const memberName = members[i];
-    
+        for (const member of memberResults) {
             if (!member) {
-                throw new NotFoundError(`사용자를 찾을 수 없습니다: ${memberName}`);
+                throw new NotFoundError(`사용자를 찾을 수 없습니다.`);
             }
             if (uniqueMembers.has(member.name)) {
-                throw new BadReqError(`중복된 사용자 이름입니다: ${member.name}`);
+                throw new BadReqError(`중복된 사용자이름 입니다: ${member.name}`);
             }
             uniqueMembers.add(member.name);
             filteredMembers.push({ uuid: member.uuid, name: member.name });
         }
-    
         const newTask: ITask = {
             title,
             subTitle,
@@ -38,10 +35,10 @@ export const taskService = {
             endDate,
             user: { uuid: userId }
         };
-        
         await taskRepository.createTask(newTask);
-        return;
+        return ;
     },
+
     readTask: async (taskQuery : TaskQueryDTO, userId: string) => {
         const { page, pageSize, status} = taskQuery;
         const { tasks, total } = await taskRepository.findTasksWithPagination(page, pageSize, userId, status );
@@ -64,6 +61,7 @@ export const taskService = {
 
         const clenderDate = calendarUtil(startDate, type);
         const calender = await taskRepository.findTaskByCalender(clenderDate, userId);
+        console.log(calender);
         if(!calender) throw new NotFoundError('프로젝트를 찾을 수 없습니다.');
 
         const result = calender.map(calender => new CalenderResDTO(calender))
@@ -82,7 +80,7 @@ export const taskService = {
                 taskupdateDTO.members.map(async (member) => {
                     const user = await userRepository.getUserByName(member);
                     if (!user) {
-                        throw new NotFoundError(`사용자를 찾을 수 없습니다: ${member}`);
+                        throw new NotFoundError(`사용자를 찾을 수 없습니다: ${user.name}`);
                     }
                     return { uuid: user.uuid, name: user.name };
                 })

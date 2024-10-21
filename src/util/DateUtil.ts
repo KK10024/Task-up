@@ -2,8 +2,11 @@ import { AppError, BadReqError } from "./AppError";
 import  dayjs  from "dayjs";
 
 export function KoreanTime(dateString: string | Date): Date {
+    // Date 객체로 변환
+    //const date = new Date(dateString);
     const date = dayjs(dateString);
-    const koreaTimeOffset = 9 * 60 * 60 * 1000;
+    // 한국 시간으로 변환
+    const koreaTimeOffset = 9 * 60 * 60 * 1000; // 9시간을 밀리초로 변환
     const koreanDate = dayjs(date.valueOf() + koreaTimeOffset);
     return new Date(koreanDate.valueOf());
 }

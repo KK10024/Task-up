@@ -6,6 +6,7 @@ import { AppError, NotFoundError } from '../util/AppError';
 const repository = AppDataSource.getRepository(User);
 
 export const userRepository = {
+    // 이름으로 검색 후 uuid, name 내보냄
     getUserByName : async (username: string): Promise<{ uuid: string, name: string;} | null> => {
         const user = await repository.findOne({
             where: { name: username }

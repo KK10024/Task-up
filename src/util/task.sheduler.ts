@@ -3,7 +3,7 @@ import { taskRepository } from '../repository/task.repository';
 import { sendToClients } from '../middleware/sseHandler';
 
 export const scheduleNotifications = () => {
-    cron.schedule('0 0 * * *', async () => {
+    cron.schedule('0 */6 * * *', async () => {
         try {
             const notifications = await taskRepository.getTasksDue();
 

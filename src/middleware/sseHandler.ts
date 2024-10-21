@@ -1,25 +1,6 @@
 import { Request, Response } from 'express';
 
-class SSEManager {
-    private clients: Response[] = [];
-
-    addClient(res: Response) {
-        this.clients.push(res);
-    }
-
-    removeClient(res: Response) {
-        this.clients = this.clients.filter(client => client !== res);
-    }
-
-    sendToAll(message: string) {
-        this.clients.forEach(client => {
-            client.write(`data: ${message}\n\n`);
-        });
-    }
-}
-
-// 새로운 SSEManager 인스턴스를 만들어 관리
-const sseManager = new SSEManager();
+let clients = [];
 
 export const sseHandler = (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/event-stream');
@@ -28,14 +9,21 @@ export const sseHandler = (req: Request, res: Response) => {
 
     res.write(`data: 연결되었습니다\n\n`);
 
-    // 클라이언트를 SSEManager에 추가
-    sseManager.addClient(res);
+    // 클라이언트를 배열에 추가
+    clients.push(res);
 
+    res.on('error', (error) => {
+        console.error('클라이언트와의 연결에서 오류 발생:', error);
+    });
+    // 연결이 종료되면 클라이언트를 배열에서 제거
     req.on('close', () => {
-        sseManager.removeClient(res);
+        clients = clients.filter(client => client !== res);
     });
 };
 
+// 클라이언트에게 메시지 전송
 export const sendToClients = (message: string) => {
-    sseManager.sendToAll(message);
+    clients.forEach(client => {
+        client.write(`data: ${message}\n\n`);
+    });
 };

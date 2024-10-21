@@ -17,7 +17,7 @@ const app: Express = express();
 //cors 설정
 app.use(
 	cors({
-	  origin: "kdt-react-node-1-team03.elicecoding.com",
+	  origin: "http://localhost:3000",
 	  credentials: true
     }),
    );

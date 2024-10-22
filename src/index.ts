@@ -21,7 +21,7 @@ app.use(
 	  credentials: true
     }),
    );
-
+//테스트
 
 // 알림 스케쥴러 등록
 scheduleNotifications();
